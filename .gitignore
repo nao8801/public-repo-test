@@ -2,6 +2,7 @@
 x64/
 Debug/
 Release/
+.vs/
 *.lib
 *.obj
 *.aps
@@ -20,4 +21,8 @@ Release/
 *.m88
 *.exe
 *.rom
+*.wav
+*.d88
+*.88D
+*.s88
 
