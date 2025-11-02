@@ -1,4 +1,4 @@
-//	$Id: pcinfo.h,v 1.1 1999/08/26 08:09:59 cisc Exp $
+﻿//	$Id: pcinfo.h,v 1.1 1999/08/26 08:09:59 cisc Exp $
 
 #pragma once
 

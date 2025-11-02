@@ -1,4 +1,4 @@
-// $Id: dderr.cpp,v 1.1 2000/02/09 10:47:38 cisc Exp $
+﻿// $Id: dderr.cpp,v 1.1 2000/02/09 10:47:38 cisc Exp $
 
 #include "headers.h"
 #include "types.h"

@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------
+ï»¿// ---------------------------------------------------------------------------
 //	FM Sound Generator
 //	Copyright (C) cisc 1998, 2003.
 // ---------------------------------------------------------------------------
@@ -8,17 +8,17 @@
 #define FM_GEN_INL_H
 
 // ---------------------------------------------------------------------------
-//	’è”‚»‚Ì‚Q
+//	å®šæ•°ãã®ï¼’
 //	
 #define FM_PI			3.14159265358979323846
 
-#define FM_SINEPRESIS	2			// EG‚ÆƒTƒCƒ“”g‚Ì¸“x‚Ì·  0(’á)-2(‚)
+#define FM_SINEPRESIS	2			// EGã¨ã‚µã‚¤ãƒ³æ³¢ã®ç²¾åº¦ã®å·®  0(ä½)-2(é«˜)
 
 
 #define FM_OPSINBITS	10
 #define FM_OPSINENTS	(1 << FM_OPSINBITS)
 
-#define FM_EGCBITS		18			// eg ‚Ì count ‚ÌƒVƒtƒg’l
+#define FM_EGCBITS		18			// eg ã® count ã®ã‚·ãƒ•ãƒˆå€¤
 #define FM_LFOCBITS		14
 
 #ifdef FM_TUNEBUILD
@@ -26,7 +26,7 @@
  #define FM_RATIOBITS	0
 #else
  #define FM_PGBITS		9		
- #define FM_RATIOBITS	7			// 8-12 ‚­‚ç‚¢‚Ü‚ÅH
+ #define FM_RATIOBITS	7			// 8-12 ãã‚‰ã„ã¾ã§ï¼Ÿ
 #endif
 
 #define FM_EGBITS		16
@@ -41,13 +41,13 @@ namespace FM
 // ---------------------------------------------------------------------------
 //	Operator
 //
-//	ƒtƒB[ƒhƒoƒbƒNƒoƒbƒtƒ@‚ğƒNƒŠƒA
+//	ãƒ•ã‚£ãƒ¼ãƒ‰ãƒãƒƒã‚¯ãƒãƒƒãƒ•ã‚¡ã‚’ã‚¯ãƒªã‚¢
 inline void Operator::ResetFB()
 {
 	out_ = out2_ = 0;
 }
 
-//	ƒL[ƒIƒ“
+//	ã‚­ãƒ¼ã‚ªãƒ³
 inline void Operator::KeyOn()
 {
 	if (!keyon_)
@@ -55,7 +55,7 @@ inline void Operator::KeyOn()
 		if (eg_phase_ == off || eg_phase_ == release)
 		{
 			if (ssg_type_ & 8) {
-				//	ƒtƒ‰ƒOƒŠƒZƒbƒg
+				//	ãƒ•ãƒ©ã‚°ãƒªã‚»ãƒƒãƒˆ
 				ssg_type_ &= (uint8)~0x10;
 				ssg_type_ |= (uint8)((ssg_type_ & 4) << 2);
 			}
@@ -71,7 +71,7 @@ inline void Operator::KeyOn()
 	}
 }
 
-//	ƒL[ƒIƒ“(CSM)
+//	ã‚­ãƒ¼ã‚ªãƒ³(CSM)
 inline void Operator::KeyOnCsm()
 {
 	if (!keyon_)
@@ -79,7 +79,7 @@ inline void Operator::KeyOnCsm()
 		csmkeyon_ = true;
 		{
 			if (ssg_type_ & 8) {
-				//	ƒtƒ‰ƒOƒŠƒZƒbƒg
+				//	ãƒ•ãƒ©ã‚°ãƒªã‚»ãƒƒãƒˆ
 				ssg_type_ &= (uint8)~0x10;
 				ssg_type_ |= (uint8)((ssg_type_ & 4) << 2);
 			}
@@ -92,7 +92,7 @@ inline void Operator::KeyOnCsm()
 	}
 }
 
-//	ƒL[ƒIƒt
+//	ã‚­ãƒ¼ã‚ªãƒ•
 inline void	Operator::KeyOff()
 {
 	if (keyon_)
@@ -102,7 +102,7 @@ inline void	Operator::KeyOff()
 	}
 }
 
-//	ƒL[ƒIƒt(CSM)
+//	ã‚­ãƒ¼ã‚ªãƒ•(CSM)
 inline void	Operator::KeyOffCsm()
 {
 	if (!keyon_ && csmkeyon_)
@@ -115,7 +115,7 @@ inline void	Operator::KeyOffCsm()
 	}
 }
 
-//	ƒIƒyƒŒ[ƒ^‚Í‰Ò“­’†‚©H
+//	ã‚ªãƒšãƒ¬ãƒ¼ã‚¿ã¯ç¨¼åƒä¸­ã‹ï¼Ÿ
 inline int Operator::IsOn()
 {
 	return eg_phase_ - off;
@@ -235,20 +235,20 @@ inline void Operator::SetMS(uint ms)
 // ---------------------------------------------------------------------------
 //	4-op Channel
 
-//	ƒIƒyƒŒ[ƒ^‚Ìí—Ş (LFO) ‚ğİ’è
+//	ã‚ªãƒšãƒ¬ãƒ¼ã‚¿ã®ç¨®é¡ (LFO) ã‚’è¨­å®š
 inline void Channel4::SetType(OpType type)
 {
 	for (int i=0; i<4; i++)
 		op[i].type_ = type;
 }
 
-//	ƒZƒ‹ƒtEƒtƒB[ƒhƒoƒbƒNƒŒ[ƒg‚Ìİ’è (0-7)
+//	ã‚»ãƒ«ãƒ•ãƒ»ãƒ•ã‚£ãƒ¼ãƒ‰ãƒãƒƒã‚¯ãƒ¬ãƒ¼ãƒˆã®è¨­å®š (0-7)
 inline void Channel4::SetFB(uint feedback)
 {
 	fb = fbtable[feedback];
 }
 
-//	OPNA Œn LFO ‚Ìİ’è
+//	OPNA ç³» LFO ã®è¨­å®š
 inline void Channel4::SetMS(uint ms)
 {
 	op[0].SetMS(ms);
@@ -257,14 +257,14 @@ inline void Channel4::SetMS(uint ms)
 	op[3].SetMS(ms);
 }
 
-//	ƒ`ƒƒƒ“ƒlƒ‹Eƒ}ƒXƒN
+//	ãƒãƒ£ãƒ³ãƒãƒ«ãƒ»ãƒã‚¹ã‚¯
 inline void Channel4::Mute(bool m)
 {
 	for (int i=0; i<4; i++)
 		op[i].Mute(m);
 }
 
-//	“à•”ƒpƒ‰ƒ[ƒ^‚ğÄŒvZ
+//	å†…éƒ¨ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’å†è¨ˆç®—
 inline void Channel4::Refresh()
 {
 	for (int i=0; i<4; i++)
@@ -292,13 +292,13 @@ inline void StoreSample(Sample& dest, ISample data)
 
 
 // ---------------------------------------------------------------------------
-//	AM ‚ÌƒŒƒxƒ‹‚ğİ’è
+//	AM ã®ãƒ¬ãƒ™ãƒ«ã‚’è¨­å®š
 inline void Chip::SetAML(uint l)
 {
 	aml_ = l & (FM_LFOENTS - 1);
 }
 
-//	PM ‚ÌƒŒƒxƒ‹‚ğİ’è
+//	PM ã®ãƒ¬ãƒ™ãƒ«ã‚’è¨­å®š
 inline void Chip::SetPML(uint l)
 {
 	pml_ = l & (FM_LFOENTS - 1);

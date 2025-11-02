@@ -1,4 +1,4 @@
-//	$Id: piccolo.h,v 1.2 2002/05/31 09:45:22 cisc Exp $
+﻿//	$Id: piccolo.h,v 1.2 2002/05/31 09:45:22 cisc Exp $
 
 #pragma once
 

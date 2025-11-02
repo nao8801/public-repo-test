@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------
+ï»¿// ---------------------------------------------------------------------------
 //	$Id
 
 #pragma once
@@ -77,9 +77,9 @@ public:
 #endif
 
 // ---------------------------------------------------------------------------
-//	•W€‚Å‚Í’ñ‹Ÿ‚³‚ê‚È‚¢‚©‚à‚µ‚ê‚È‚¢ API ‚ğ—ñ‹“
-//	EXAPI - GetModuleHandle ‚ÅÚ‘±
-//	EXDLL - ‹N“® ‚É LoadLibrary ‚ÅÚ‘±
+//	æ¨™æº–ã§ã¯æä¾›ã•ã‚Œãªã„ã‹ã‚‚ã—ã‚Œãªã„ API ã‚’åˆ—æŒ™
+//	EXAPI - GetModuleHandle ã§æ¥ç¶š
+//	EXDLL - èµ·å‹•æ™‚ ã« LoadLibrary ã§æ¥ç¶š
 //
 DECLARE_EXAPI(EnableIME, BOOL, (HWND, BOOL), "user32.dll", "WINNLSEnableIME", FALSE)
 DECLARE_EXAPI(MonitorFromWin, HMONITOR, (HWND, DWORD), "user32.dll", "MonitorFromWindow", 0)

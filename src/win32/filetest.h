@@ -1,4 +1,4 @@
-// $Id: filetest.h,v 1.1 1999/12/28 11:17:39 cisc Exp $
+﻿// $Id: filetest.h,v 1.1 1999/12/28 11:17:39 cisc Exp $
 
 #ifndef incl_filetest_h
 #define incl_filetest_h

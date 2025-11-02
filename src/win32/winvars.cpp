@@ -1,4 +1,4 @@
-//	$Id: winvars.cpp,v 1.1 2000/11/02 12:43:52 cisc Exp $
+Ôªø//	$Id: winvars.cpp,v 1.1 2000/11/02 12:43:52 cisc Exp $
 
 #include "headers.h"
 #include "winvars.h"
@@ -9,7 +9,7 @@ int WinVars::var[nparam];
 
 void WinVars::Init()
 {
-	// Windows ÇÃÉoÅ[ÉWÉáÉì
+	// Windows „ÅÆ„Éê„Éº„Ç∏„Éß„É≥
 	OSVERSIONINFO vi;
 	memset(&vi, 0, sizeof(vi));
 	vi.dwOSVersionInfoSize = sizeof(vi);
@@ -17,7 +17,7 @@ void WinVars::Init()
 	var[MajorVer]	= vi.dwMajorVersion;
 	var[MinorVer]	= vi.dwMinorVersion;
 
-	// ç\ë¢ëÃÇ∆Ç©
+	// ÊßãÈÄ†‰Ωì„Å®„Åã
 	var[OFNSIZE]	= Var(MajorVer) <= 4 ? OFNV4SIZE : sizeof(OPENFILENAME);
 	var[MIISIZE]	= Var(MajorVer) <= 4 ? 44 : sizeof(MENUITEMINFO);
 }

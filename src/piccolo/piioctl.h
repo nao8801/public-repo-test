@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 //
 // Define the IOCTL codes we will use.  The IOCTL code contains a command

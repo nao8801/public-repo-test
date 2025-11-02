@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------
+Ôªø// ---------------------------------------------------------------------------
 //	M88 - PC-88 Emulator
 //	Copyright (C) cisc 1997, 2001.
 // ---------------------------------------------------------------------------
@@ -55,8 +55,8 @@ private:
 	string dumpfile_;
 
 	HMMIO hmmio_;					// mmio handle
-	MMCKINFO ckparent_;				// RIFF É`ÉÉÉìÉN
-	MMCKINFO ckdata_;				// data É`ÉÉÉìÉN
+	MMCKINFO ckparent_;				// RIFF „ÉÅ„É£„É≥„ÇØ
+	MMCKINFO ckdata_;				// data „ÉÅ„É£„É≥„ÇØ
 
 	DumpState dumpstate_;
 	int dumpedsample_;

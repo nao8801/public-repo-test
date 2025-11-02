@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------
+Ôªø// ---------------------------------------------------------------------------
 //  M88 - PC-8801 emulator
 //	Copyright (C) cisc 1999, 2000.
 // ---------------------------------------------------------------------------
@@ -15,7 +15,7 @@
 using namespace PC8801;
 
 // ---------------------------------------------------------------------------
-//	ç\íz/è¡ñ≈
+//	ÊßãÁØâ/Ê∂àÊªÖ
 //
 CodeMonitor::CodeMonitor()
 {
@@ -38,7 +38,7 @@ bool CodeMonitor::Init(PC88* pc88)
 }
 
 // ---------------------------------------------------------------------------
-//	É_ÉCÉAÉçÉOèàóù
+//	„ÉÄ„Ç§„Ç¢„É≠„Ç∞Âá¶ÁêÜ
 //
 BOOL CodeMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp)
 {
@@ -55,7 +55,7 @@ BOOL CodeMonitor::DlgProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp)
 }
 
 // ---------------------------------------------------------------------------
-//	ÉXÉNÉçÅ[ÉãÉoÅ[èàóù
+//	„Çπ„ÇØ„É≠„Éº„É´„Éê„ÉºÂá¶ÁêÜ
 //
 int CodeMonitor::VerticalScroll(int msg)
 {
@@ -120,7 +120,7 @@ void CodeMonitor::UpdateText()
 	{
 		if (a < 0x10000)
 		{
-			// é¿çsâÒêîÇ…äÓÇ√Ç¢ÇƒêFÇÇ¬ÇØÇƒÇ›ÇÈ
+			// ÂÆüË°åÂõûÊï∞„Å´Âü∫„Å•„ÅÑ„Å¶Ëâ≤„Çí„Å§„Åë„Å¶„Åø„Çã
 			SetBkCol(RGB(StatExec(a), 0, 0x20));
 
 			int next = diag.Disassemble(a, buf+8);
@@ -160,11 +160,11 @@ bool CodeMonitor::Dump(FILE* fp, int from, int to)
 }
 
 // ----------------------------------------------------------------------------
-//	ëçÉ_ÉìÉvÇèëÇ´çûÇﬁ
+//	Á∑è„ÉÄ„É≥„Éó„ÇíÊõ∏„ÅçËæº„ÇÄ
 //	
 bool CodeMonitor::DumpImage()
 {
-	// É_ÉCÉAÉçÉO
+	// „ÉÄ„Ç§„Ç¢„É≠„Ç∞
 	OFNV5 ofn;
 	memset(&ofn, 0, sizeof(ofn));
 	ofn.lStructSize = WINVAR(OFNSIZE);
@@ -185,7 +185,7 @@ bool CodeMonitor::DumpImage()
 	if (!GetSaveFileName(&ofn))
 		return false;
 
-	// èëÇ´çûÇ›
+	// Êõ∏„ÅçËæº„Åø
 	FILE* fp = fopen(filename, "w");
 	if (fp)
 	{

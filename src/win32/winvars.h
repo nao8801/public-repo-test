@@ -1,4 +1,4 @@
-//	$Id: winvars.h,v 1.1 2000/11/02 12:43:52 cisc Exp $
+﻿//	$Id: winvars.h,v 1.1 2000/11/02 12:43:52 cisc Exp $
 
 #pragma once
 

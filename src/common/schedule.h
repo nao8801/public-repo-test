@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------
+ï»¿// ---------------------------------------------------------------------------
 //	Scheduling class
 //	Copyright (C) cisc 1999.
 // ---------------------------------------------------------------------------
@@ -12,11 +12,11 @@
 
 struct SchedulerEvent
 {
-	int count;			// ŠÔc‚è
+	int count;			// æ™‚é–“æ®‹ã‚Š
 	IDevice* inst;
 	IDevice::TimeFunc func;
 	int arg;
-	int time;			// ŠÔ
+	int time;			// æ™‚é–“
 };
 
 class Scheduler : public IScheduler, public ITime
@@ -48,9 +48,9 @@ private:
 	virtual int GetTicks() = 0;
 
 private:
-	int evlast;				// —LŒø‚ÈƒCƒxƒ“ƒg‚Ì”Ô†‚ÌÅ‘å’l
-	int time;				// Scheduler “à‚ÌŒ»İ
-	int etime;				// Execute ‚ÌI—¹—\’è
+	int evlast;				// æœ‰åŠ¹ãªã‚¤ãƒ™ãƒ³ãƒˆã®ç•ªå·ã®æœ€å¤§å€¤
+	int time;				// Scheduler å†…ã®ç¾åœ¨æ™‚åˆ»
+	int etime;				// Execute ã®çµ‚äº†äºˆå®šæ™‚åˆ»
 	Event events[maxevents];
 };
 

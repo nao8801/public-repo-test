@@ -1,4 +1,4 @@
-#ifndef _ROMEO_ROMEO_H
+﻿#ifndef _ROMEO_ROMEO_H
 #define _ROMEO_ROMEO_H
 
 #define	ROMEO_VENDORID		0x6809
