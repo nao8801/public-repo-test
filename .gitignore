@@ -1,41 +1,28 @@
-# Prerequisites
-*.d
-
 # Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Linker files
-*.ilk
-
-# Debugger Files
-*.pdb
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
+x64/
+Debug/
+Release/
+.vs/
 *.lib
+*.obj
+*.aps
 
-# Executables
+# Work files
+*.ini
+*.ncb
+*.suo
+*.sdf
+*.opensdf
+*.user
+*.dmp
+*.*~
+
+# Binary files
+*.m88
 *.exe
-*.out
-*.app
+*.rom
+*.wav
+*.d88
+*.88D
+*.s88
 
-# debug information files
-*.dwo
