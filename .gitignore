@@ -26,3 +26,8 @@ Release/
 *.88D
 *.s88
 
+# Linux/Unix executables
+prototype/sdl2_test/test_graphics
+prototype/sdl2_test/test_audio
+prototype/sdl2_test/hal_demo
+
