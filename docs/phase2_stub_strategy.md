@@ -109,6 +109,8 @@ int main(int argc, char* argv[])
 #define WINCORE_SDL2_H
 
 #include "pc88/pc88.h"
+#include "pc88/diskmgr.h"
+#include "pc88/tapemgr.h"
 #include "DrawSDL2.h"
 #include "ConfigSDL2.h"
 
@@ -123,13 +125,13 @@ public:
     void Cleanup();
 
 private:
-    PC8801::PC88* pc88;
+    PC88* pc88;
     DrawSDL2* draw;
+    DiskManager* diskmgr;
+    TapeManager* tapemgr;
     bool running;
 
     void ProcessEvents();
-    void Update();
-    void Render();
 };
 
 #endif
@@ -141,7 +143,7 @@ private:
 #include <SDL2/SDL.h>
 
 WinCoreSDL2::WinCoreSDL2()
-    : pc88(nullptr), draw(nullptr), running(false)
+    : pc88(nullptr), draw(nullptr), diskmgr(nullptr), tapemgr(nullptr), running(false)
 {
 }
 
@@ -152,27 +154,65 @@ WinCoreSDL2::~WinCoreSDL2()
 
 bool WinCoreSDL2::Init(ConfigSDL2* config)
 {
-    // DrawSDL2初期化
+    // 1. DrawSDL2初期化
     draw = new DrawSDL2();
     if (!draw->Init(640, 400, 8)) {
+        fprintf(stderr, "DrawSDL2::Init failed\n");
         return false;
     }
 
-    // PC88初期化（デフォルト設定）
-    pc88 = new PC8801::PC88();
-    // TODO: pc88->Init() の実装確認
+    // 2. DiskManager初期化
+    diskmgr = new DiskManager();
+    if (!diskmgr->Init()) {
+        fprintf(stderr, "DiskManager::Init failed\n");
+        delete draw;
+        return false;
+    }
 
+    // 3. TapeManager作成（PC88::Init内で初期化される）
+    tapemgr = new TapeManager();
+
+    // 4. PC88初期化
+    pc88 = new PC88();
+    if (!pc88->Init(draw, diskmgr, tapemgr)) {
+        fprintf(stderr, "PC88::Init failed\n");
+        delete tapemgr;
+        delete diskmgr;
+        delete draw;
+        return false;
+    }
+
+    // 5. 設定適用
+    pc88->ApplyConfig(config->GetPC88Config());
+
+    printf("WinCoreSDL2: Initialization complete\n");
     running = true;
     return true;
 }
 
 void WinCoreSDL2::Run()
 {
+    uint32_t last_time = SDL_GetTicks();
+    const uint32_t frame_time = 1000 / 60;  // 60 FPS = 16.67ms
+
     while (running) {
         ProcessEvents();
-        Update();
-        Render();
-        SDL_Delay(16); // 約60 FPS
+
+        // PC88エミュレーション実行
+        // 1フレーム = 16.67ms = 1667 ticks (1 tick = 10μs)
+        // clock=100 (4MHz), eclock=100 (実効クロック100%)
+        pc88->Proceed(1667, 100, 100);
+
+        // 画面更新
+        pc88->UpdateScreen(false);
+
+        // フレームレート制御
+        uint32_t current_time = SDL_GetTicks();
+        uint32_t elapsed = current_time - last_time;
+        if (elapsed < frame_time) {
+            SDL_Delay(frame_time - elapsed);
+        }
+        last_time = SDL_GetTicks();
     }
 }
 
@@ -189,30 +229,19 @@ void WinCoreSDL2::ProcessEvents()
     }
 }
 
-void WinCoreSDL2::Update()
-{
-    // TODO: PC88のエミュレーションステップ
-    // pc88->Run();
-}
-
-void WinCoreSDL2::Render()
-{
-    // TODO: PC88のVRAMを取得してDrawSDL2に渡す
-    // uint8_t* vram;
-    // int pitch;
-    // draw->Lock(&vram, &pitch);
-    // pc88->UpdateScreen(vram, pitch, ...);
-    // draw->Unlock();
-
-    Draw::Region region = {0, 0, 640, 400};
-    draw->DrawScreen(region);
-}
-
 void WinCoreSDL2::Cleanup()
 {
     if (pc88) {
         delete pc88;
         pc88 = nullptr;
+    }
+    if (tapemgr) {
+        delete tapemgr;
+        tapemgr = nullptr;
+    }
+    if (diskmgr) {
+        delete diskmgr;
+        diskmgr = nullptr;
     }
     if (draw) {
         delete draw;
@@ -221,7 +250,7 @@ void WinCoreSDL2::Cleanup()
 }
 ```
 
-**依存関係**: SDL2, DrawSDL2, PC88クラス
+**依存関係**: SDL2, DrawSDL2, PC88, DiskManager, TapeManager
 
 ---
 
@@ -268,21 +297,34 @@ ConfigSDL2::~ConfigSDL2()
 void ConfigSDL2::LoadDefaults()
 {
     // PC-8801mk2SR デフォルト設定
-    pc88config.basicmode = PC8801::Config::N88V2;
-    pc88config.mainsubratio = 16;  // メイン:サブ CPU比
-    pc88config.soundrate = 44100;
-    pc88config.soundbuffer = 100;  // ms
+    pc88config.basicmode = PC8801::Config::N88V2;  // N88-BASIC V2モード
+
+    // フラグ設定
+    pc88config.flags = PC8801::Config::enableopna      // OPNA有効
+                     | PC8801::Config::showstatusbar;  // ステータスバー表示
+    pc88config.flag2 = 0;
+
+    // CPU設定
+    pc88config.clock = 100;          // 4MHz (100 = 1単位100kHz)
+    pc88config.speed = 100;          // 100%速度
+    pc88config.mainsubratio = 16;    // メイン:サブ CPU比 16:1
+    pc88config.cpumode = PC8801::Config::msauto;
+
+    // サウンド設定
+    pc88config.soundbuffer = 100;    // 100ms
+    pc88config.opnclock = 8;         // OPNクロック (8MHz)
+    pc88config.volfm = 80;           // FM音源音量 (0-128)
+    pc88config.volssg = 80;          // SSG音量
+    pc88config.voladpcm = 80;        // ADPCM音量
+    pc88config.volrhythm = 80;       // リズム音量
 
     // メモリ設定
-    pc88config.memsw = 0x0f;  // 拡張RAM 64KB
+    pc88config.erambanks = 4;        // 拡張RAM 4バンク = 128KB
 
-    // デバイス設定
-    pc88config.opnmode = PC8801::Config::OPNA;
-    pc88config.useopna = true;
-
-    // ディスプレイ設定
-    pc88config.fullline = false;
-    pc88config.skipline = false;
+    // その他
+    pc88config.refreshtiming = 0;
+    pc88config.dipsw = 0;
+    pc88config.keytype = PC8801::Config::AT106;
 
     printf("ConfigSDL2: Loaded default PC-8801mk2SR configuration\n");
 }
