@@ -30,5 +30,6 @@ Release/
 prototype/sdl2_test/test_graphics
 prototype/sdl2_test/test_audio
 prototype/sdl2_test/test_audio_debug
+prototype/sdl2_test/test_audio_terminal
 prototype/sdl2_test/hal_demo
 
