@@ -33,13 +33,10 @@ bool WinCoreSDL2::Init(ConfigSDL2* config)
 {
     printf("Initializing WinCoreSDL2...\n");
 
-    // 1. DrawSDL2初期化
-    printf("  - Initializing DrawSDL2...\n");
+    // 1. DrawSDL2作成（Init()はPC88::Init()内で呼ばれる）
+    printf("  - Creating DrawSDL2...\n");
     draw = new DrawSDL2();
-    if (!draw->Init(640, 400, 8)) {
-        fprintf(stderr, "DrawSDL2::Init failed\n");
-        return false;
-    }
+    // 注意: draw->Init()はPC88::Init()内で呼ばれるため、ここでは呼ばない
 
     // 2. DiskManager初期化
     printf("  - Initializing DiskManager...\n");
@@ -54,7 +51,7 @@ bool WinCoreSDL2::Init(ConfigSDL2* config)
     printf("  - Creating TapeManager...\n");
     tapemgr = new TapeManager();
 
-    // 4. PC88初期化
+    // 4. PC88初期化（この中でdraw->Init()が呼ばれる）
     printf("  - Initializing PC88...\n");
     pc88 = new PC88();
     bool pc88_init_ok = pc88->Init(draw, diskmgr, tapemgr);
