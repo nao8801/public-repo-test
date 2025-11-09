@@ -640,7 +640,7 @@ void PC88::ApplyConfig(Config* cfg)
 {
 	cfgflags = cfg->flags;
 	cfgflag2 = cfg->flag2;
-	
+
 	base->SetSwitch(cfg);
 	scrn->ApplyConfig(cfg);
 	mem1->ApplyConfig(cfg);
@@ -651,7 +651,7 @@ void PC88::ApplyConfig(Config* cfg)
 	opn1->SetVolume(cfg);
 	opn2->SetFMMixMode(!!(cfg->flag2 & Config::usefmclock));
 	opn2->SetVolume(cfg);
-	
+
 	cpumode = (cfg->cpumode == Config::msauto)
 		? (cfg->mainsubratio > 1 ? ms21 : ms11)
 		: (cfg->cpumode & 1);

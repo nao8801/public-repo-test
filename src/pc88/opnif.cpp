@@ -37,7 +37,6 @@ int OPNIF::prescaler = 0x2d;
 OPNIF::OPNIF(const ID& id)
 : Device(id), chip(0),piccolo(0)
 {
-	Log("Hello\n");
 	scheduler = 0;
 	soundcontrol = 0;
 	opnamode = false;
@@ -67,6 +66,7 @@ bool OPNIF::Init(IOBus* b, int intrport, int io, Scheduler* s)
 
 	if (!opn.Init(clock, 8000, 0))
 		return false;
+	currentrate = 8000;  // Initialize currentrate to match opn.Init() rate parameter
 	prevtime = scheduler->GetTime();
 	TimeEvent(1);
 	
