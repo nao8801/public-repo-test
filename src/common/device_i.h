@@ -7,6 +7,7 @@
 #pragma once
 
 #include <assert.h>
+#include <stdint.h>  // uintptr_t for pointer-to-integer conversions
 
 // ---------------------------------------------------------------------------
 //	MemoryBus inline funcitions
@@ -16,7 +17,7 @@
 //
 inline void MemoryBus::SetWriteMemory(uint addr, void* ptr)
 {
-	assert((uint(ptr) & idbit) == 0 && (addr & pagemask) == 0);
+	assert((uintptr_t(ptr) & idbit) == 0 && (addr & pagemask) == 0);
 	pages[addr >> pagebits].write = ptr;
 }
 
@@ -25,7 +26,7 @@ inline void MemoryBus::SetWriteMemory(uint addr, void* ptr)
 //
 inline void MemoryBus::SetReadMemory(uint addr, void* ptr)
 {
-	assert((uint(ptr) & idbit) == 0 && (addr & pagemask) == 0);
+	assert((uintptr_t(ptr) & idbit) == 0 && (addr & pagemask) == 0);
 	pages[addr >> pagebits].read = ptr;
 }
 
@@ -34,7 +35,7 @@ inline void MemoryBus::SetReadMemory(uint addr, void* ptr)
 //
 inline void MemoryBus::SetMemory(uint addr, void* ptr)
 {
-	assert((uint(ptr) & idbit) == 0 && (addr & pagemask) == 0);
+	assert((uintptr_t(ptr) & idbit) == 0 && (addr & pagemask) == 0);
 	Page* page = &pages[addr >> pagebits];
 	page->read = ptr;
 	page->write = ptr;
@@ -60,7 +61,7 @@ inline void MemoryBus::SetFunc(uint addr, void* inst, ReadFuncPtr rd, WriteFuncP
 inline void MemoryBus::SetWriteMemorys(uint addr, uint length, uint8* ptr)
 {
 	assert((addr & pagemask) == 0 && (length & pagemask) == 0);
-	assert((uint(ptr) & idbit) == 0);
+	assert((uintptr_t(ptr) & idbit) == 0);
 	
 	Page* page = pages + (addr >> pagebits);
 	int npages = length >> pagebits;
@@ -99,7 +100,7 @@ inline void MemoryBus::SetWriteMemorys(uint addr, uint length, uint8* ptr)
 inline void MemoryBus::SetWriteMemorys2(uint addr, uint length, uint8* ptr, void* inst)
 {
 	assert((addr & pagemask) == 0 && (length & pagemask) == 0);
-	assert((uint(ptr) & idbit) == 0);
+	assert((uintptr_t(ptr) & idbit) == 0);
 	
 	Page* page = pages + (addr >> pagebits);
 	Owner* owner = owners + (addr >> pagebits);
@@ -121,7 +122,7 @@ inline void MemoryBus::SetWriteMemorys2(uint addr, uint length, uint8* ptr, void
 inline void MemoryBus::SetReadMemorys(uint addr, uint length, uint8* ptr)
 {
 	assert((addr & pagemask) == 0 && (length & pagemask) == 0);
-	assert((uint(ptr) & idbit) == 0);
+	assert((uintptr_t(ptr) & idbit) == 0);
 	
 	Page* page = pages + (addr >> pagebits);
 	uint npages = length >> pagebits;
@@ -160,7 +161,7 @@ inline void MemoryBus::SetReadMemorys(uint addr, uint length, uint8* ptr)
 inline void MemoryBus::SetReadMemorys2(uint addr, uint length, uint8* ptr, void* inst)
 {
 	assert((addr & pagemask) == 0 && (length & pagemask) == 0);
-	assert((uint(ptr) & idbit) == 0);
+	assert((uintptr_t(ptr) & idbit) == 0);
 	
 	Page* page = pages + (addr >> pagebits);
 	Owner* owner = owners + (addr >> pagebits);
@@ -182,7 +183,7 @@ inline void MemoryBus::SetReadMemorys2(uint addr, uint length, uint8* ptr, void*
 inline void MemoryBus::SetMemorys(uint addr, uint length, uint8* ptr)
 {
 	assert((addr & pagemask) == 0 && (length & pagemask) == 0);
-	assert((uint(ptr) & idbit) == 0);
+	assert((uintptr_t(ptr) & idbit) == 0);
 	
 	Page* page = pages + (addr >> pagebits);
 	uint npages = length >> pagebits;
@@ -225,7 +226,7 @@ inline void MemoryBus::SetMemorys(uint addr, uint length, uint8* ptr)
 inline void MemoryBus::SetMemorys2(uint addr, uint length, uint8* ptr, void* inst)
 {
 	assert((addr & pagemask) == 0 && (length & pagemask) == 0);
-	assert((uint(ptr) & idbit) == 0);
+	assert((uintptr_t(ptr) & idbit) == 0);
 	
 	Page* page = pages + (addr >> pagebits);
 	Owner* owner = owners + (addr >> pagebits);

@@ -42,11 +42,8 @@ bool DrawSDL2::Init(uint w, uint h, uint bits)
 
     printf("[DrawSDL2] Initializing: %dx%d, %dbpp\n", width, height, bpp);
 
-    // SDL2 Video初期化
-    if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
-        fprintf(stderr, "[DrawSDL2] SDL_InitSubSystem failed: %s\n", SDL_GetError());
-        return false;
-    }
+    // SDL2 Videoは main() で既に初期化済み
+    // SDL_InitSubSystem(SDL_INIT_VIDEO) は不要（冗長）
 
     // ウィンドウ作成
     window = SDL_CreateWindow(
@@ -126,7 +123,8 @@ bool DrawSDL2::Cleanup()
         window = nullptr;
     }
 
-    SDL_QuitSubSystem(SDL_INIT_VIDEO);
+    // SDL2 Videoの終了は main() で SDL_Quit() によって行われる
+    // SDL_QuitSubSystem(SDL_INIT_VIDEO) は不要
 
     printf("[DrawSDL2] Cleanup complete\n");
     return true;
