@@ -57,14 +57,19 @@ bool WinCoreSDL2::Init(ConfigSDL2* config)
     // 4. PC88初期化
     printf("  - Initializing PC88...\n");
     pc88 = new PC88();
-    if (!pc88->Init(draw, diskmgr, tapemgr)) {
+    bool pc88_init_ok = pc88->Init(draw, diskmgr, tapemgr);
+    if (!pc88_init_ok) {
         fprintf(stderr, "PC88::Init failed (this may be due to missing ROM files)\n");
-        fprintf(stderr, "Continuing anyway - screen will be black if ROM is missing\n");
-        // ROM読み込みエラーでも続行
-        // delete tapemgr;
-        // delete diskmgr;
-        // delete draw;
-        // return false;
+        fprintf(stderr, "WARNING: Emulator will not run properly without ROM files\n");
+        fprintf(stderr, "Expected ROM files in current directory:\n");
+        fprintf(stderr, "  - N88.ROM, N88_0.ROM, N88_1.ROM, N88_2.ROM, N88_3.ROM\n");
+        fprintf(stderr, "  - DISK.ROM, N88KNJ1.ROM, N88KNJ2.ROM, etc.\n");
+        // ROM読み込みエラーの場合は、エミュレータを起動しない
+        delete pc88;
+        delete tapemgr;
+        delete diskmgr;
+        delete draw;
+        return false;
     }
 
     // 5. 設定適用
