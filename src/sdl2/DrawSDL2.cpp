@@ -45,6 +45,16 @@ bool DrawSDL2::Init(uint w, uint h, uint bits)
     // SDL2 Videoは main() で既に初期化済み
     // SDL_InitSubSystem(SDL_INIT_VIDEO) は不要（冗長）
 
+    // テスト用パレット設定（ROMなしでも見えるように）
+    for (int i = 0; i < 8; i++) {
+        palette[i].r = (i & 1) ? 255 : 0;  // Red
+        palette[i].g = (i & 2) ? 255 : 0;  // Green
+        palette[i].b = (i & 4) ? 255 : 0;  // Blue
+        palette[i].a = 255;
+    }
+    // 白
+    palette[15].r = palette[15].g = palette[15].b = palette[15].a = 255;
+
     // ウィンドウ作成
     window = SDL_CreateWindow(
         "M88 - PC-8801 Emulator (SDL2)",
@@ -95,9 +105,18 @@ bool DrawSDL2::Init(uint w, uint h, uint bits)
     framebuffer = new uint8[width * height];
     memset(framebuffer, 0, width * height);
 
+    // テスト用: カラーバーを描画（ROMなしでも動作確認できるように）
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int color_index = (x * 8) / width;  // 0-7の8色
+            framebuffer[y * pitch + x] = color_index;
+        }
+    }
+
     status_flags = readytodraw | shouldrefresh;
 
     printf("[DrawSDL2] Initialization successful\n");
+    printf("[DrawSDL2] TEST: Color bars drawn to framebuffer\n");
     return true;
 }
 
@@ -164,8 +183,12 @@ void DrawSDL2::Resize(uint w, uint h)
 void DrawSDL2::DrawScreen(const Region& region)
 {
     if (!texture || !framebuffer) {
+        fprintf(stderr, "[DrawSDL2] DrawScreen skipped: texture=%p framebuffer=%p\n", texture, framebuffer);
         return;
     }
+
+    printf("[DrawSDL2] DrawScreen called: region=(%d,%d)-(%d,%d)\n",
+           region.left, region.top, region.right, region.bottom);
 
     // SDL2テクスチャをロック
     void* pixels;
@@ -179,6 +202,18 @@ void DrawSDL2::DrawScreen(const Region& region)
     // フレームバッファ（8bpp）をRGB888に変換してテクスチャにコピー
     uint32_t* dest = (uint32_t*)pixels;
     int dest_pitch_pixels = texture_pitch / 4;
+
+    // デバッグ: 最初の数ピクセルをチェック
+    bool has_nonzero = false;
+    for (int i = 0; i < 100 && i < width * height; i++) {
+        if (framebuffer[i] != 0) {
+            has_nonzero = true;
+            break;
+        }
+    }
+    if (!has_nonzero) {
+        printf("[DrawSDL2] Warning: First 100 pixels are all zero (black)\n");
+    }
 
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
@@ -197,6 +232,8 @@ void DrawSDL2::DrawScreen(const Region& region)
     SDL_RenderCopy(renderer, texture, nullptr, nullptr);
     SDL_RenderPresent(renderer);
 
+    printf("[DrawSDL2] Screen rendered successfully\n");
+
     status_flags &= ~shouldrefresh;
 }
 
@@ -206,6 +243,8 @@ void DrawSDL2::SetPalette(uint index, uint nents, const Palette* pal)
         return;
     }
 
+    printf("[DrawSDL2] SetPalette: index=%u, nents=%u\n", index, nents);
+
     for (uint i = 0; i < nents; i++) {
         uint idx = index + i;
         if (idx < 256) {
@@ -213,6 +252,11 @@ void DrawSDL2::SetPalette(uint index, uint nents, const Palette* pal)
             palette[idx].g = pal[i].green;
             palette[idx].b = pal[i].blue;
             palette[idx].a = 255;
+
+            // デバッグ: 最初の数色を表示
+            if (i < 8) {
+                printf("  Palette[%u] = RGB(%u, %u, %u)\n", idx, pal[i].red, pal[i].green, pal[i].blue);
+            }
         }
     }
 
