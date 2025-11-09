@@ -43,6 +43,7 @@ message(STATUS "")
 set(COMMON_SOURCES
     src/common/device.cpp
     src/common/error.cpp
+    src/common/file.cpp
     src/common/lpf.cpp
     src/common/lz77d.cpp
     src/common/memmgr.cpp
