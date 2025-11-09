@@ -159,15 +159,15 @@ const Device::Descriptor INTC::descriptor =
 	INTC::indef, INTC::outdef
 };
 
-const Device::OutFuncPtr INTC::outdef[] = 
+const Device::OutFuncPtr INTC::outdef[] =
 {
-	STATIC_CAST(Device::OutFuncPtr, &Reset),
-	STATIC_CAST(Device::OutFuncPtr, &Request),
-	STATIC_CAST(Device::OutFuncPtr, &SetMask),
-	STATIC_CAST(Device::OutFuncPtr, &SetRegister),
+	STATIC_CAST(Device::OutFuncPtr, &INTC::Reset),
+	STATIC_CAST(Device::OutFuncPtr, &INTC::Request),
+	STATIC_CAST(Device::OutFuncPtr, &INTC::SetMask),
+	STATIC_CAST(Device::OutFuncPtr, &INTC::SetRegister),
 };
 
-const Device::InFuncPtr INTC::indef[] = 
+const Device::InFuncPtr INTC::indef[] =
 {
-	STATIC_CAST(Device::InFuncPtr, &IntAck),
+	STATIC_CAST(Device::InFuncPtr, &INTC::IntAck),
 };

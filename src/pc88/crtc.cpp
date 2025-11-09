@@ -1245,16 +1245,16 @@ bool IFCALL CRTC::LoadStatus(const uint8* s)
 //
 const Device::Descriptor CRTC::descriptor = { indef, outdef };
 
-const Device::OutFuncPtr CRTC::outdef[] = 
+const Device::OutFuncPtr CRTC::outdef[] =
 {
-	STATIC_CAST(Device::OutFuncPtr, &Reset),
-	STATIC_CAST(Device::OutFuncPtr, &Out),
-	STATIC_CAST(Device::OutFuncPtr, &PCGOut),
-	STATIC_CAST(Device::OutFuncPtr, &SetKanaMode),
+	STATIC_CAST(Device::OutFuncPtr, &CRTC::Reset),
+	STATIC_CAST(Device::OutFuncPtr, &CRTC::Out),
+	STATIC_CAST(Device::OutFuncPtr, &CRTC::PCGOut),
+	STATIC_CAST(Device::OutFuncPtr, &CRTC::SetKanaMode),
 };
 
-const Device::InFuncPtr CRTC::indef[] = 
+const Device::InFuncPtr CRTC::indef[] =
 {
-	STATIC_CAST(Device::InFuncPtr, &In),
-	STATIC_CAST(Device::InFuncPtr, &GetStatus),
+	STATIC_CAST(Device::InFuncPtr, &CRTC::In),
+	STATIC_CAST(Device::InFuncPtr, &CRTC::GetStatus),
 };

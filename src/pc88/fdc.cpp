@@ -8,8 +8,8 @@
 
 #include "headers.h"
 
-#include "FDC.h"
-#include "FDU.h"
+#include "fdc.h"
+#include "fdu.h"
 #include "misc.h"
 #include "critsect.h"
 #include "diskmgr.h"
@@ -477,22 +477,22 @@ void IOCALL FDC::PhaseTimer(uint p)
 
 const FDC::CommandFunc FDC::CommandTable[32] =
 {
-	&CmdInvalid,			&CmdInvalid,		// 0
-	&CmdReadDiagnostic,		&CmdSpecify,
-	&CmdSenceDeviceStatus,	&CmdWriteData,		// 4
-	&CmdReadData,			&CmdRecalibrate,
-	&CmdSenceIntStatus,		&CmdWriteData,		// 8
-	&CmdReadID,				&CmdInvalid,
-	&CmdReadData,			&CmdWriteID,		// c
-	&CmdInvalid,			&CmdSeek,
-	&CmdInvalid,			&CmdScanEqual,		// 10
-	&CmdInvalid,			&CmdInvalid,
-	&CmdInvalid,			&CmdInvalid,		// 14
-	&CmdInvalid,			&CmdInvalid,
-	&CmdInvalid,			&CmdScanEqual,		// 18
-	&CmdInvalid,			&CmdInvalid,
-	&CmdInvalid,			&CmdScanEqual,		// 1c
-	&CmdInvalid,			&CmdInvalid,
+	&FDC::CmdInvalid,			&FDC::CmdInvalid,		// 0
+	&FDC::CmdReadDiagnostic,	&FDC::CmdSpecify,
+	&FDC::CmdSenceDeviceStatus,	&FDC::CmdWriteData,		// 4
+	&FDC::CmdReadData,			&FDC::CmdRecalibrate,
+	&FDC::CmdSenceIntStatus,	&FDC::CmdWriteData,		// 8
+	&FDC::CmdReadID,			&FDC::CmdInvalid,
+	&FDC::CmdReadData,			&FDC::CmdWriteID,		// c
+	&FDC::CmdInvalid,			&FDC::CmdSeek,
+	&FDC::CmdInvalid,			&FDC::CmdScanEqual,		// 10
+	&FDC::CmdInvalid,			&FDC::CmdInvalid,
+	&FDC::CmdInvalid,			&FDC::CmdInvalid,		// 14
+	&FDC::CmdInvalid,			&FDC::CmdInvalid,
+	&FDC::CmdInvalid,			&FDC::CmdScanEqual,		// 18
+	&FDC::CmdInvalid,			&FDC::CmdInvalid,
+	&FDC::CmdInvalid,			&FDC::CmdScanEqual,		// 1c
+	&FDC::CmdInvalid,			&FDC::CmdInvalid,
 };
 
 // ---------------------------------------------------------------------------
@@ -1347,18 +1347,18 @@ bool IFCALL FDC::LoadStatus(const uint8* s)
 //
 const Device::Descriptor FDC::descriptor = { indef, outdef };
 
-const Device::OutFuncPtr FDC::outdef[] = 
+const Device::OutFuncPtr FDC::outdef[] =
 {
-	STATIC_CAST(Device::OutFuncPtr, &Reset),
-	STATIC_CAST(Device::OutFuncPtr, &SetData),
-	STATIC_CAST(Device::OutFuncPtr, &DriveControl),
-	STATIC_CAST(Device::OutFuncPtr, &MotorControl)
+	STATIC_CAST(Device::OutFuncPtr, &FDC::Reset),
+	STATIC_CAST(Device::OutFuncPtr, &FDC::SetData),
+	STATIC_CAST(Device::OutFuncPtr, &FDC::DriveControl),
+	STATIC_CAST(Device::OutFuncPtr, &FDC::MotorControl)
 };
 
-const Device::InFuncPtr FDC::indef[] = 
+const Device::InFuncPtr FDC::indef[] =
 {
-	STATIC_CAST(Device::InFuncPtr, &Status),
-	STATIC_CAST(Device::InFuncPtr, &GetData),
-	STATIC_CAST(Device::InFuncPtr, &TC),
+	STATIC_CAST(Device::InFuncPtr, &FDC::Status),
+	STATIC_CAST(Device::InFuncPtr, &FDC::GetData),
+	STATIC_CAST(Device::InFuncPtr, &FDC::TC),
 };
 

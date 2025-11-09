@@ -161,8 +161,8 @@ bool IFCALL Beep::LoadStatus(const uint8* s)
 //
 const Device::Descriptor Beep::descriptor = { 0, outdef };
 
-const Device::OutFuncPtr Beep::outdef[] = 
+const Device::OutFuncPtr Beep::outdef[] =
 {
-	STATIC_CAST(Device::OutFuncPtr, &Out40),
+	STATIC_CAST(Device::OutFuncPtr, &Beep::Out40),
 };
 

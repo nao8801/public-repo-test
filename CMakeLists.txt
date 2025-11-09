@@ -50,6 +50,7 @@ set(COMMON_SOURCES
     src/common/sndbuf2.cpp
     src/common/soundbuf.cpp
     src/common/srcbuf.cpp
+    src/common/status.cpp
 )
 
 # ====================================
@@ -62,9 +63,8 @@ set(DEVICES_SOURCES
     src/devices/opna.cpp
     src/devices/psg.cpp
     src/devices/Z80c.cpp
-    src/devices/Z80Debug.cpp
     src/devices/z80diag.cpp
-    src/devices/Z80Test.cpp
+    # Z80Debug.cpp and Z80Test.cpp excluded (debug/test only)
 )
 
 # Z80_x86.cpp は32bit x86専用なので、条件付きで追加
@@ -88,12 +88,12 @@ set(PC88_SOURCES
     src/pc88/fdu.cpp
     src/pc88/floppy.cpp
     src/pc88/intc.cpp
-    src/pc88/ioview.cpp
+    # src/pc88/ioview.cpp  # Excluded: I/O viewer (debug/UI)
     src/pc88/joypad.cpp
     src/pc88/kanjirom.cpp
     src/pc88/memory.cpp
-    src/pc88/memview.cpp
-    src/pc88/mouse.cpp
+    # src/pc88/memview.cpp  # Excluded: Memory viewer (debug/UI)
+    # src/pc88/mouse.cpp    # Excluded: Mouse (UI-dependent)
     src/pc88/opnif.cpp
     src/pc88/pc88.cpp
     src/pc88/pd8257.cpp

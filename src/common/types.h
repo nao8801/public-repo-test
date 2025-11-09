@@ -103,6 +103,22 @@ typedef uint32 packed;
     typedef uintptr_t WPARAM;
     typedef intptr_t LPARAM;
     typedef void PROPSHEETPAGE;
+
+    // POINT structure (Windows GDI)
+    struct POINT {
+        long x;
+        long y;
+    };
+
+    // Linux/Unix: Path constants
+    #include <limits.h>
+    #ifndef MAX_PATH
+        #ifdef PATH_MAX
+            #define MAX_PATH PATH_MAX
+        #else
+            #define MAX_PATH 4096
+        #endif
+    #endif
 #endif
 
 // Cast macros
@@ -112,4 +128,21 @@ typedef uint32 packed;
 #else
     #define STATIC_CAST(t, o)			((t)(o))
     #define REINTERPRET_CAST(t, o)		(*(t*)(void*)&(o))
+#endif
+
+// Cross-platform time functions
+// Windows: localtime_s(struct tm* _tm, const time_t *_time)
+// Linux:   localtime_r(const time_t *timep, struct tm *result)
+#ifndef _WIN32
+    #include <time.h>
+    #define localtime_s(tm_ptr, time_ptr) localtime_r(time_ptr, tm_ptr)
+#endif
+
+// Cross-platform string functions
+// Windows: strnicmp(s1, s2, n) - case-insensitive comparison
+// Linux:   strncasecmp(s1, s2, n)
+#ifndef _WIN32
+    #include <strings.h>
+    #define strnicmp strncasecmp
+    #define stricmp strcasecmp
 #endif

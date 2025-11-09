@@ -118,7 +118,7 @@ void PSG::MakeEnvelopTable()
 		2,2, 2,0, 2,1, 2,3, 1,1, 1,3, 1,2, 1,0,
 	};
 	static uint8 table2[4] = {  0,  0, 31, 31 };
-	static uint8 table3[4] = {  0,  1, -1,  0 };
+	static uint8 table3[4] = {  0,  1, 0xFF,  0 };  // 0xFF = -1 in unsigned arithmetic
 
 	uint* ptr = enveloptable[0];
 
