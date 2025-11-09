@@ -68,11 +68,41 @@ typedef uint32 packed;
 // Use new C++ casts
 #define USE_NEW_CAST
 
-// Memory call convention
-#ifdef USE_Z80_X86
+// Calling conventions
+#ifdef _WIN32
+    // Windows: Use __stdcall
     #define MEMCALL __stdcall
+    #ifndef IFCALL
+        #define IFCALL __stdcall
+    #endif
+    #ifndef IOCALL
+        #define IOCALL __stdcall
+    #endif
+    // Windows: 'interface' is a keyword
 #else
+    // Linux/Unix: No calling convention needed
     #define MEMCALL
+    #ifndef IFCALL
+        #define IFCALL
+    #endif
+    #ifndef IOCALL
+        #define IOCALL
+    #endif
+    #ifndef __stdcall
+        #define __stdcall
+    #endif
+    // Linux/Unix: 'interface' → 'struct'
+    #ifndef interface
+        #define interface struct
+    #endif
+
+    // Linux/Unix: Stub Windows types
+    typedef const void* REFIID;
+    typedef void* HWND;
+    typedef unsigned int UINT;
+    typedef uintptr_t WPARAM;
+    typedef intptr_t LPARAM;
+    typedef void PROPSHEETPAGE;
 #endif
 
 // Cast macros

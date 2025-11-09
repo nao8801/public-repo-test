@@ -208,9 +208,56 @@ if(PLATFORM_WIN32)
         )
     endif()
 else()
-    # Linux/macOS版は現在コアライブラリのみ
-    message(STATUS "Building core library only (GUI not implemented yet)")
-    message(STATUS "Future work: Implement SDL2-based GUI for non-Windows platforms")
+    # Linux/macOS版 - SDL2ベース
+    message(STATUS "Building SDL2-based version for non-Windows platforms")
+
+    # SDL2の検索
+    find_package(SDL2 REQUIRED)
+    if(SDL2_FOUND)
+        message(STATUS "SDL2 found: ${SDL2_LIBRARIES}")
+    else()
+        message(FATAL_ERROR "SDL2 not found. Please install SDL2 development packages.")
+    endif()
+
+    # zlib の検索
+    find_package(ZLIB REQUIRED)
+    if(ZLIB_FOUND)
+        message(STATUS "zlib found: ${ZLIB_LIBRARIES}")
+    else()
+        message(FATAL_ERROR "zlib not found. Please install zlib development packages.")
+    endif()
+
+    # SDL2版のソースファイル
+    set(SDL2_SOURCES
+        src/sdl2/main_sdl2.cpp
+        src/sdl2/WinCoreSDL2.cpp
+        src/sdl2/ConfigSDL2.cpp
+        src/sdl2/DrawSDL2.cpp
+    )
+
+    # SDL2版の実行ファイル
+    add_executable(m88 ${SDL2_SOURCES})
+
+    # インクルードディレクトリ
+    target_include_directories(m88 PRIVATE
+        ${CMAKE_SOURCE_DIR}/src
+        ${CMAKE_SOURCE_DIR}/src/common
+        ${CMAKE_SOURCE_DIR}/src/devices
+        ${CMAKE_SOURCE_DIR}/src/pc88
+        ${CMAKE_SOURCE_DIR}/src/sdl2
+        ${SDL2_INCLUDE_DIRS}
+    )
+
+    # ライブラリリンク
+    target_link_libraries(m88
+        m88core
+        ${SDL2_LIBRARIES}
+        ${ZLIB_LIBRARIES}
+        pthread
+        m
+    )
+
+    message(STATUS "SDL2 version configured: m88 executable")
 endif()
 
 # ====================================
