@@ -146,3 +146,11 @@ typedef uint32 packed;
     #define strnicmp strncasecmp
     #define stricmp strcasecmp
 #endif
+
+// Cross-platform math functions
+// Windows: MulDiv(a, b, c) = (a * b) / c with 64-bit intermediate
+#ifndef _WIN32
+    inline int MulDiv(int a, int b, int c) {
+        return (int)(((long long)a * b) / c);
+    }
+#endif

@@ -21,7 +21,7 @@ public:
     void Connect() {}
     bool IsDriverBased() { return false; }
     int GetCurrentTime() { return 0; }
-    PiccoloChip* GetChip(int) { return nullptr; }
+    int GetChip(int type, PiccoloChip** chip) { return -1; }  // Always fail (no hardware)
 };
 
 class PiccoloChip

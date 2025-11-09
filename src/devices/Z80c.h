@@ -12,6 +12,8 @@
 #include "memmgr.h"
 #include "Z80.h"
 #include "Z80diag.h"
+#include <cstdio>
+#include <cstring>
 
 class IOBus;
 

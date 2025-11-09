@@ -1490,7 +1490,7 @@ void Screen::ApplyConfig(const Config* config)
 // ---------------------------------------------------------------------------
 //	Table 作成
 //
-packed Screen::BETable0[1 << sizeof(packed)] = { -1 };
+packed Screen::BETable0[1 << sizeof(packed)] = { 0xFFFFFFFF };  // -1 in unsigned
 packed Screen::BETable1[1 << sizeof(packed)];
 packed Screen::BETable2[1 << sizeof(packed)];
 packed Screen::E80Table[1 << sizeof(packed)];
