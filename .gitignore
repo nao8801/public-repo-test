@@ -25,6 +25,7 @@ build/
 *.m88
 *.exe
 *.rom
+*.ROM
 *.wav
 *.d88
 *.88D
