@@ -144,12 +144,23 @@ bool CRTC::Init(IOBus* b, Scheduler* s, PD8257* d, Draw* _draw)
 //
 void IOCALL CRTC::Out(uint port, uint data)
 {
+	static int call_count = 0;
+	if (call_count < 10) {
+		printf("[CRTC] Out: port=0x%02X, data=0x%02X\n", port, data);
+		call_count++;
+	}
 	Command((port & 1) != 0, data);
 }
 
-uint IOCALL CRTC::In(uint)
+uint IOCALL CRTC::In(uint port)
 {
-	return Command(false, 0);
+	static int call_count = 0;
+	uint result = Command(false, 0);
+	if (call_count < 10) {
+		printf("[CRTC] In: port=0x%02X, result=0x%02X\n", port, result);
+		call_count++;
+	}
+	return result;
 }
 
 uint IOCALL CRTC::GetStatus(uint)
@@ -162,11 +173,13 @@ uint IOCALL CRTC::GetStatus(uint)
 //	
 void IOCALL CRTC::Reset(uint, uint)
 {
+	printf("[CRTC] Reset called\n");
 	line200 = (bus->In(0x40) & 2) != 0;
 	memcpy(pcgram, fontrom+0x400, 0x400);
 	kanamode = 0;
 	CreateTFont();
 	HotReset();
+	printf("[CRTC] Reset complete (line200=%d)\n", line200);
 }
 
 // ---------------------------------------------------------------------------
