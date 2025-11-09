@@ -122,7 +122,7 @@ void Z80C::SetPC(uint newpc)
 		DEBUGCOUNT(5);
 		instbase = instlim = 0;
 		instpage = (uint8*) ~0;
-		inst = (uint8*) newpc;
+		inst = (uint8*) (uintptr_t) newpc;  // Cast via uintptr_t to avoid warning on 64-bit
 		return;
 	}
 }
@@ -2349,7 +2349,7 @@ bool IFCALL Z80C::LoadStatus(const uint8* s)
 	reg = st->reg;
 	instbase = instlim = 0;
 	instpage = (uint8*) ~0;
-	inst = (uint8*) reg.pc;
+	inst = (uint8*) (uintptr_t) reg.pc;  // Cast via uintptr_t to avoid warning on 64-bit
 
 	intr = st->intr;
 	waitstate = st->wait;

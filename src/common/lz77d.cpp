@@ -35,9 +35,10 @@ bool LZ77Dec::Decode(uint8* dest, int destsize, const uint8* src)
 					return dest == dtop;
 
 				x |= ~0xff;
-				*dest++ = dest[x];
-				*dest++ = dest[x];
-				*dest++ = dest[x];
+				uint8 tmp = dest[x];
+				*dest++ = tmp;
+				*dest++ = tmp;
+				*dest++ = tmp;
 			}
 			else
 			{
@@ -74,7 +75,10 @@ bool LZ77Dec::Decode(uint8* dest, int destsize, const uint8* src)
 					return false;
 
 				for (; len>0; len--)
-					*dest++ = dest[x];
+				{
+					uint8 tmp = dest[x];
+					*dest++ = tmp;
+				}
 			}
 		}
 	}

@@ -1292,9 +1292,9 @@ bool OPNA::LoadRhythmSample(const char* path)
 		char buf[MAX_PATH] = "";
 		if (path)
 			strncpy(buf, path, MAX_PATH);
-		strncat(buf, "2608_", MAX_PATH);
-		strncat(buf, rhythmname[i], MAX_PATH);
-		strncat(buf, ".WAV", MAX_PATH);
+		strncat(buf, "2608_", MAX_PATH - strlen(buf) - 1);
+		strncat(buf, rhythmname[i], MAX_PATH - strlen(buf) - 1);
+		strncat(buf, ".WAV", MAX_PATH - strlen(buf) - 1);
 
 		if (!file.Open(buf, FileIO::readonly))
 		{
