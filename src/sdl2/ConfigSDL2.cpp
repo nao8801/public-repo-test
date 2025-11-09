@@ -62,7 +62,7 @@ void ConfigSDL2::LoadDefaults()
 
     // その他
     pc88config.refreshtiming = 0;
-    pc88config.dipsw = 0;
+    pc88config.dipsw = 1829;  // Win32版と同じデフォルト値（DIPSW設定）
     pc88config.keytype = PC8801::Config::AT106;
     pc88config.mousesensibility = 50;
     pc88config.lpffc = 8000;         // LPF カットオフ周波数

@@ -391,7 +391,9 @@ int Z80C::Exec0(int stop, int other)
 		else
 		{
 			for (clockcount = -clocks; clockcount < 0; )
+			{
 				SingleStep();
+			}
 		}
 		currentcpu = 0;
 		return stopcount;

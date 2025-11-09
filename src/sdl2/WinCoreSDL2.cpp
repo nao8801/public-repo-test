@@ -8,6 +8,8 @@
 #include "WinCoreSDL2.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>
+#include "pc88/memory.h"
+#include "devices/Z80.h"
 
 // ---------------------------------------------------------------------------
 //  構築・破棄
@@ -69,9 +71,16 @@ bool WinCoreSDL2::Init(ConfigSDL2* config)
         return false;
     }
 
+    // CPU1のダンプを有効化（デバッグ用）
+    // 必要に応じてコメントアウトを外して有効化
+    // pc88->GetCPU1()->EnableDump(true);
+
     // 5. 設定適用
     printf("  - Applying configuration...\n");
     pc88->ApplyConfig(config->GetPC88Config());
+    
+    // 設定適用後にReset()を再度呼ぶ（DIPSWなどの設定を反映するため）
+    pc88->Reset();
 
     printf("WinCoreSDL2: Initialization complete\n");
     running = true;

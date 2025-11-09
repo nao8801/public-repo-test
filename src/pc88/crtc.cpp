@@ -147,7 +147,7 @@ void IOCALL CRTC::Out(uint port, uint data)
 	Command((port & 1) != 0, data);
 }
 
-uint IOCALL CRTC::In(uint)
+uint IOCALL CRTC::In(uint port)
 {
 	return Command(false, 0);
 }
@@ -243,7 +243,9 @@ uint CRTC::Command(bool a0, uint data)
 	LOG1(a0 ? "\ncmd:%.2x " : "%.2x ", data);
 	
 	if (a0)
+	{
 		cmdc = 0, cmdm = data >> 5;
+	}
 	
 	switch (cmdm)
 	{
@@ -336,7 +338,9 @@ uint CRTC::Command(bool a0, uint data)
 				}
 			}
 			else
+			{
 				status &= ~0x10;
+			}
 
 			LOG5(" Start Display [%.2x;%.3x;%2d] vrtc %d  tvram size = %.4x ",
 				status, mode, width, vretrace, tvramsize);

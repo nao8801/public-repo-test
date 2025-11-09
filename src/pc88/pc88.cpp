@@ -200,12 +200,8 @@ void PC88::UpdateScreen(bool refresh)
 //			crtc->SetSize();
 			if (draw->Lock(&image, &bpl))
 			{
-				LOG2("(%d -> %d) ", region.top, region.bottom);
 				crtc->UpdateScreen(image, bpl, region, refresh);
-				LOG2("(%d -> %d) ", region.top, region.bottom);
 				scrn->UpdateScreen(image, bpl, region, refresh);
-				LOG2("(%d -> %d)\n", region.top, region.bottom);
-				
 				bool palchanged = scrn->UpdatePalette(draw);
 				draw->Unlock();
 				updated = palchanged || region.Valid();
