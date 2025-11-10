@@ -166,14 +166,9 @@ void WinCoreSDL2::Run()
         }
         last_time = SDL_GetTicks();
 
-        // 1秒ごとにフレームカウント表示
         frame_count++;
-        if (frame_count % 60 == 0) {
-            printf("Frames: %u (running for %u seconds)\n", frame_count, frame_count / 60);
-        }
     }
 
-    printf("Exited main loop after %u frames\n", frame_count);
 }
 
 // ---------------------------------------------------------------------------
@@ -196,6 +191,7 @@ void WinCoreSDL2::ProcessEvents()
                 running = false;
             } else if (keyboard) {
                 // Forward all other key down events to keyboard emulation
+                // Use keycode (logical key) for RDP compatibility
                 keyboard->KeyDown(event.key.keysym.sym);
             }
             break;
@@ -203,6 +199,7 @@ void WinCoreSDL2::ProcessEvents()
         case SDL_KEYUP:
             if (keyboard) {
                 // Forward key up events to keyboard emulation
+                // Use keycode (logical key) for RDP compatibility
                 keyboard->KeyUp(event.key.keysym.sym);
             }
             break;
@@ -221,6 +218,11 @@ void WinCoreSDL2::Cleanup()
         printf("  - Deleting KeyboardSDL2...\n");
         delete keyboard;
         keyboard = nullptr;
+    }
+    // TapeManagerを先に閉じる（PC88が削除される前にschedulerへの参照を無効化）
+    if (tapemgr) {
+        printf("  - Closing TapeManager...\n");
+        tapemgr->Close();
     }
     if (pc88) {
         printf("  - Deleting PC88...\n");

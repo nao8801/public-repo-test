@@ -144,7 +144,7 @@ const KeyboardSDL2::Key KeyboardSDL2::KeyTable[] =
 	{ SDLK_INSERT, 10, 3 }, // INS
 
 	// Terminator
-	{ 0, 0, 0 }
+	{ SDLK_UNKNOWN, 0, 0 }
 };
 
 const int KeyboardSDL2::KeyTableSize = sizeof(KeyTable) / sizeof(Key) - 1;
@@ -180,7 +180,7 @@ KeyboardSDL2::KeyboardSDL2()
 	{
 		keyport[i] = 0xFF;  // All keys released (negative logic)
 	}
-	memset(keystate, 0, sizeof(keystate));
+	keystate.clear();
 	active = true;
 }
 
@@ -193,7 +193,6 @@ KeyboardSDL2::~KeyboardSDL2()
 //
 bool KeyboardSDL2::Init()
 {
-	printf("[KeyboardSDL2] Initializing keyboard interface\n");
 	return true;
 }
 
@@ -207,8 +206,7 @@ void IOCALL KeyboardSDL2::Reset(uint, uint)
 	{
 		keyport[i] = 0xFF;
 	}
-	memset(keystate, 0, sizeof(keystate));
-	printf("[KeyboardSDL2] Reset\n");
+	keystate.clear();
 }
 
 // ---------------------------------------------------------------------------
@@ -217,7 +215,6 @@ void IOCALL KeyboardSDL2::Reset(uint, uint)
 void KeyboardSDL2::ApplyConfig(const Config* config)
 {
 	// Future: handle different keyboard types (101/106/98)
-	printf("[KeyboardSDL2] Configuration applied\n");
 }
 
 // ---------------------------------------------------------------------------
@@ -227,7 +224,7 @@ void IOCALL KeyboardSDL2::VSync(uint, uint d)
 {
 	if (d && active)
 	{
-		// Clear key matrix cache
+		// Clear key matrix cache (invalidate on VSync)
 		for (int i = 0; i < 16; i++)
 		{
 			keyport[i] = -1;
@@ -256,12 +253,15 @@ uint IOCALL KeyboardSDL2::In(uint port)
 				const Key& key = KeyTable[i];
 				if (key.pc88_row == port)
 				{
-					// Check if this SDL key is pressed
-					SDL_Scancode scancode = SDL_GetScancodeFromKey(key.sdl_key);
-					if (scancode != SDL_SCANCODE_UNKNOWN && keystate[scancode])
+					// Check if this SDL keycode is pressed
+					if (key.sdl_keycode != SDLK_UNKNOWN)
 					{
-						// Key is pressed, clear the corresponding bit (negative logic)
-						r &= ~(1 << key.pc88_col);
+						auto it = keystate.find(key.sdl_keycode);
+						if (it != keystate.end() && it->second)
+						{
+							// Key is pressed, clear the corresponding bit (negative logic)
+							r &= ~(1 << key.pc88_col);
+						}
 					}
 				}
 			}
@@ -284,7 +284,7 @@ void KeyboardSDL2::Activate(bool yes)
 	active = yes;
 	if (active)
 	{
-		memset(keystate, 0, sizeof(keystate));
+		keystate.clear();
 		for (int i = 0; i < 16; i++)
 		{
 			keyport[i] = -1;
@@ -297,18 +297,9 @@ void KeyboardSDL2::Activate(bool yes)
 //
 void KeyboardSDL2::KeyDown(SDL_Keycode keycode)
 {
-	SDL_Scancode scancode = SDL_GetScancodeFromKey(keycode);
-	if (scancode != SDL_SCANCODE_UNKNOWN && scancode < 512)
+	if (keycode != SDLK_UNKNOWN)
 	{
-		keystate[scancode] = true;
-
-		// Debug output for first few key presses
-		static int debug_count = 0;
-		if (debug_count < 10)
-		{
-			printf("[KeyboardSDL2] KeyDown: keycode=0x%X scancode=%d\n", keycode, scancode);
-			debug_count++;
-		}
+		keystate[keycode] = true;
 	}
 }
 
@@ -317,9 +308,8 @@ void KeyboardSDL2::KeyDown(SDL_Keycode keycode)
 //
 void KeyboardSDL2::KeyUp(SDL_Keycode keycode)
 {
-	SDL_Scancode scancode = SDL_GetScancodeFromKey(keycode);
-	if (scancode != SDL_SCANCODE_UNKNOWN && scancode < 512)
+	if (keycode != SDLK_UNKNOWN)
 	{
-		keystate[scancode] = false;
+		keystate[keycode] = false;
 	}
 }

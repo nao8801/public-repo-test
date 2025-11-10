@@ -10,6 +10,7 @@
 
 #include "device.h"
 #include <SDL2/SDL.h>
+#include <map>
 
 // ---------------------------------------------------------------------------
 namespace PC8801
@@ -45,9 +46,9 @@ public:
 private:
 	struct Key
 	{
-		SDL_Keycode sdl_key;  // SDL_Keycode (32-bit)
-		uint8 pc88_row;       // PC-8801 key matrix row (0-15)
-		uint8 pc88_col;       // PC-8801 key matrix column (0-7)
+		SDL_Keycode sdl_keycode;    // SDL_Keycode (logical key, layout-dependent but RDP-friendly)
+		uint8 pc88_row;             // PC-8801 key matrix row (0-15)
+		uint8 pc88_col;             // PC-8801 key matrix column (0-7)
 	};
 
 	void UpdateKeyMatrix();
@@ -57,7 +58,7 @@ private:
 
 	bool active;
 	int keyport[16];           // Key matrix cache (one byte per row)
-	bool keystate[512];        // SDL key state (indexed by SDL_Scancode)
+	std::map<SDL_Keycode, bool> keystate;  // SDL key state (keycode -> pressed)
 
 private:
 	static const Descriptor descriptor;

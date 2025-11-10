@@ -290,6 +290,8 @@ void TapeManager::SetTimer(int count)
 {
 	if (count > 100)
 		LOG1("Timer: %d\n", count);
+	if (!scheduler)
+		return;
 	scheduler->DelEvent(event), event = 0;
 	timercount = count;
 	if (motor)
@@ -308,6 +310,8 @@ void TapeManager::SetTimer(int count)
 inline void TapeManager::Send(uint byte)
 {
 	LOG1("%.2x ", byte);
+	if (!bus)
+		return;
 	bus->Out(pinput, byte);
 }
 
@@ -316,7 +320,7 @@ inline void TapeManager::Send(uint byte)
 //
 void TapeManager::RequestData(uint, uint)
 {
-	if (mode == T_DATA)
+	if (mode == T_DATA && scheduler)
 	{
 		scheduler->SetEvent(event, 1, this, STATIC_CAST(TimeFunc, &TapeManager::Timer));
 	}

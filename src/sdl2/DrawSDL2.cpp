@@ -187,9 +187,6 @@ void DrawSDL2::DrawScreen(const Region& region)
         return;
     }
 
-    printf("[DrawSDL2] DrawScreen called: region=(%d,%d)-(%d,%d)\n",
-           region.left, region.top, region.right, region.bottom);
-
     // SDL2テクスチャをロック
     void* pixels;
     int texture_pitch;
@@ -231,8 +228,6 @@ void DrawSDL2::DrawScreen(const Region& region)
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, nullptr, nullptr);
     SDL_RenderPresent(renderer);
-
-    printf("[DrawSDL2] Screen rendered successfully\n");
 
     status_flags &= ~shouldrefresh;
 }

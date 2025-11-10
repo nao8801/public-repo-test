@@ -642,10 +642,8 @@ void CRTC::SetSize()
 void CRTC::UpdateScreen(uint8* image, int _bpl, Draw::Region& region, bool ref)
 {
 	bpl = _bpl;
-	Log("UpdateScreen:");
 	if (mode & clear)
 	{
-		Log(" clear\n");
 		mode &= ~(clear | refresh);
 		ClearText(image);
 		region.Update(0, screenheight);
@@ -653,7 +651,6 @@ void CRTC::UpdateScreen(uint8* image, int _bpl, Draw::Region& region, bool ref)
 	}
 	if (mode & resize)
 	{
-		Log(" resize");
 		// 仮想画面自体の大きさを変えてしまうのが理想的だが，
 		// 色々面倒なので実際はテキストマスクを貼る
 		mode &= ~resize;
@@ -662,7 +659,6 @@ void CRTC::UpdateScreen(uint8* image, int _bpl, Draw::Region& region, bool ref)
 	}
 	if ((mode & refresh) || ref)
 	{
-		Log(" refresh");
 		mode &= ~refresh;
 		ClearText(image);
 	}
@@ -683,12 +679,9 @@ void CRTC::UpdateScreen(uint8* image, int _bpl, Draw::Region& region, bool ref)
 		attr_blink = frametime < blinkrate / 4 ? secret : 0;
 		underlineptr = (linesperchar-1) * bpl;
 
-		Log(" update");
-
 //		LOG4("time: %d  cursor: %d(%d)  blink: %d\n", frametime, attr_cursor, cursor_type, attr_blink);
 		ExpandImage(image, region);
 	}
-	Log("\n");
 }
 
 // ---------------------------------------------------------------------------
