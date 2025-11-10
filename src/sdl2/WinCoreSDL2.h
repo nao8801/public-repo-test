@@ -24,7 +24,7 @@ public:
     WinCoreSDL2();
     ~WinCoreSDL2();
 
-    bool Init(ConfigSDL2* config);
+    bool Init(ConfigSDL2* config, const char* disk_image = nullptr);
     void Run();       // メインループ
     void Cleanup();
 

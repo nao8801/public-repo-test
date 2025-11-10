@@ -32,7 +32,7 @@ WinCoreSDL2::~WinCoreSDL2()
 // ---------------------------------------------------------------------------
 //  初期化
 //
-bool WinCoreSDL2::Init(ConfigSDL2* config)
+bool WinCoreSDL2::Init(ConfigSDL2* config, const char* disk_image)
 {
     printf("Initializing WinCoreSDL2...\n");
 
@@ -130,6 +130,19 @@ bool WinCoreSDL2::Init(ConfigSDL2* config)
 
     // 設定適用後にReset()を再度呼ぶ（DIPSWなどの設定を反映するため）
     pc88->Reset();
+
+    // 7. ディスクイメージのマウント（指定されている場合）
+    if (disk_image != nullptr) {
+        printf("  - Mounting disk image: %s\n", disk_image);
+        // Mount(drive, diskname, readonly, index, create)
+        // drive=0 (ドライブA), readonly=false, index=0 (最初のディスク), create=false
+        if (diskmgr->Mount(0, disk_image, false, 0, false)) {
+            printf("  - Disk mounted successfully on drive A:\n");
+        } else {
+            fprintf(stderr, "WARNING: Failed to mount disk image: %s\n", disk_image);
+            fprintf(stderr, "  Emulator will continue without disk.\n");
+        }
+    }
 
     printf("WinCoreSDL2: Initialization complete\n");
     running = true;

@@ -15,6 +15,13 @@ int main(int argc, char* argv[])
     printf("M88 - PC-8801 Emulator (SDL2 version)\n");
     printf("======================================\n\n");
 
+    // コマンドライン引数の解析
+    const char* disk_image = nullptr;
+    if (argc > 1) {
+        disk_image = argv[1];
+        printf("Disk image specified: %s\n", disk_image);
+    }
+
     // SDL2初期化
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) < 0) {
         fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
@@ -28,7 +35,7 @@ int main(int argc, char* argv[])
 
     // コア初期化
     WinCoreSDL2 core;
-    if (!core.Init(&config)) {
+    if (!core.Init(&config, disk_image)) {
         fprintf(stderr, "WinCore initialization failed\n");
         SDL_Quit();
         return 1;
