@@ -19,6 +19,7 @@ WinCoreSDL2::WinCoreSDL2()
     , draw(nullptr)
     , diskmgr(nullptr)
     , tapemgr(nullptr)
+    , keyboard(nullptr)
     , running(false)
 {
 }
@@ -75,10 +76,58 @@ bool WinCoreSDL2::Init(ConfigSDL2* config)
     // 必要に応じてコメントアウトを外して有効化
     // pc88->GetCPU1()->EnableDump(true);
 
-    // 5. 設定適用
+    // 5. KeyboardSDL2初期化と接続
+    printf("  - Initializing KeyboardSDL2...\n");
+    keyboard = new PC8801::KeyboardSDL2();
+    if (!keyboard->Init()) {
+        fprintf(stderr, "KeyboardSDL2::Init failed\n");
+        delete pc88;
+        delete tapemgr;
+        delete diskmgr;
+        delete draw;
+        return false;
+    }
+
+    // KeyboardをIOBusに接続
+    printf("  - Connecting keyboard to IOBus...\n");
+    IOBus* bus = pc88->GetBus1();
+    static const IOBus::Connector keyb_connector[] =
+    {
+        { PC88::pres, IOBus::portout, PC8801::KeyboardSDL2::reset },
+        { PC88::vrtc, IOBus::portout, PC8801::KeyboardSDL2::vsync },
+        { 0x00, IOBus::portin, PC8801::KeyboardSDL2::in },
+        { 0x01, IOBus::portin, PC8801::KeyboardSDL2::in },
+        { 0x02, IOBus::portin, PC8801::KeyboardSDL2::in },
+        { 0x03, IOBus::portin, PC8801::KeyboardSDL2::in },
+        { 0x04, IOBus::portin, PC8801::KeyboardSDL2::in },
+        { 0x05, IOBus::portin, PC8801::KeyboardSDL2::in },
+        { 0x06, IOBus::portin, PC8801::KeyboardSDL2::in },
+        { 0x07, IOBus::portin, PC8801::KeyboardSDL2::in },
+        { 0x08, IOBus::portin, PC8801::KeyboardSDL2::in },
+        { 0x09, IOBus::portin, PC8801::KeyboardSDL2::in },
+        { 0x0a, IOBus::portin, PC8801::KeyboardSDL2::in },
+        { 0x0b, IOBus::portin, PC8801::KeyboardSDL2::in },
+        { 0x0c, IOBus::portin, PC8801::KeyboardSDL2::in },
+        { 0x0d, IOBus::portin, PC8801::KeyboardSDL2::in },
+        { 0x0e, IOBus::portin, PC8801::KeyboardSDL2::in },
+        { 0x0f, IOBus::portin, PC8801::KeyboardSDL2::in },
+        { 0, 0, 0 }
+    };
+    if (!bus->Connect(keyboard, keyb_connector)) {
+        fprintf(stderr, "Failed to connect keyboard to IOBus\n");
+        delete keyboard;
+        delete pc88;
+        delete tapemgr;
+        delete diskmgr;
+        delete draw;
+        return false;
+    }
+
+    // 6. 設定適用
     printf("  - Applying configuration...\n");
     pc88->ApplyConfig(config->GetPC88Config());
-    
+    keyboard->ApplyConfig(config->GetPC88Config());
+
     // 設定適用後にReset()を再度呼ぶ（DIPSWなどの設定を反映するため）
     pc88->Reset();
 
@@ -134,13 +183,29 @@ void WinCoreSDL2::ProcessEvents()
 {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
+        switch (event.type) {
+        case SDL_QUIT:
             printf("Received SDL_QUIT event\n");
             running = false;
-        }
-        if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
-            printf("ESC key pressed\n");
-            running = false;
+            break;
+
+        case SDL_KEYDOWN:
+            // ESC key exits the emulator
+            if (event.key.keysym.sym == SDLK_ESCAPE) {
+                printf("ESC key pressed\n");
+                running = false;
+            } else if (keyboard) {
+                // Forward all other key down events to keyboard emulation
+                keyboard->KeyDown(event.key.keysym.sym);
+            }
+            break;
+
+        case SDL_KEYUP:
+            if (keyboard) {
+                // Forward key up events to keyboard emulation
+                keyboard->KeyUp(event.key.keysym.sym);
+            }
+            break;
         }
     }
 }
@@ -152,6 +217,11 @@ void WinCoreSDL2::Cleanup()
 {
     printf("Cleaning up WinCoreSDL2...\n");
 
+    if (keyboard) {
+        printf("  - Deleting KeyboardSDL2...\n");
+        delete keyboard;
+        keyboard = nullptr;
+    }
     if (pc88) {
         printf("  - Deleting PC88...\n");
         delete pc88;

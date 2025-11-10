@@ -13,6 +13,7 @@
 #include "pc88/tapemgr.h"
 #include "DrawSDL2.h"
 #include "ConfigSDL2.h"
+#include "KeyboardSDL2.h"
 
 // ---------------------------------------------------------------------------
 //  WinCoreSDL2 - エミュレーションコア
@@ -32,6 +33,7 @@ private:
     DrawSDL2* draw;
     DiskManager* diskmgr;
     TapeManager* tapemgr;
+    PC8801::KeyboardSDL2* keyboard;
     bool running;
 
     void ProcessEvents();

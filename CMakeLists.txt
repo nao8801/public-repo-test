@@ -234,6 +234,7 @@ else()
         src/sdl2/WinCoreSDL2.cpp
         src/sdl2/ConfigSDL2.cpp
         src/sdl2/DrawSDL2.cpp
+        src/sdl2/KeyboardSDL2.cpp
     )
 
     # SDL2版の実行ファイル
