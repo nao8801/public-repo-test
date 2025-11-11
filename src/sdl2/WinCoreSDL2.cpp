@@ -202,7 +202,16 @@ void WinCoreSDL2::ProcessEvents()
             if (event.key.keysym.sym == SDLK_ESCAPE) {
                 printf("ESC key pressed\n");
                 running = false;
-            } else if (keyboard) {
+            }
+            // TAB key resets the emulator (useful for disk recognition)
+            else if (event.key.keysym.sym == SDLK_TAB) {
+                printf("TAB key pressed - Resetting PC88...\n");
+                if (pc88) {
+                    pc88->Reset();
+                    printf("PC88 reset complete\n");
+                }
+            }
+            else if (keyboard) {
                 // Forward all other key down events to keyboard emulation
                 // Use keycode (logical key) for RDP compatibility
                 keyboard->KeyDown(event.key.keysym.sym);
