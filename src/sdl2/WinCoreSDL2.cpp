@@ -9,6 +9,8 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include "pc88/memory.h"
+#include "pc88/opnif.h"
+#include "pc88/beep.h"
 #include "devices/Z80.h"
 
 // ---------------------------------------------------------------------------
@@ -20,6 +22,7 @@ WinCoreSDL2::WinCoreSDL2()
     , diskmgr(nullptr)
     , tapemgr(nullptr)
     , keyboard(nullptr)
+    , sound(nullptr)
     , running(false)
 {
 }
@@ -123,15 +126,43 @@ bool WinCoreSDL2::Init(ConfigSDL2* config, const char* disk_image)
         return false;
     }
 
-    // 6. 設定適用
+    // 6. SoundSDL2初期化と接続
+    printf("  - Initializing SoundSDL2...\n");
+    sound = new PC8801::SoundSDL2();
+    if (!sound->Init(pc88, 44100, 100)) {
+        fprintf(stderr, "SoundSDL2::Init failed\n");
+        delete sound;
+        sound = nullptr;
+        // 音声は必須ではないので続行
+        fprintf(stderr, "WARNING: Continuing without audio\n");
+    }
+
+    // 音源をSoundに接続
+    if (sound) {
+        printf("  - Connecting sound sources to SoundSDL2...\n");
+        if (!pc88->GetOPN1()->Connect(sound)) {
+            fprintf(stderr, "WARNING: Failed to connect OPN1 to sound\n");
+        }
+        if (!pc88->GetOPN2()->Connect(sound)) {
+            fprintf(stderr, "WARNING: Failed to connect OPN2 to sound\n");
+        }
+        if (!pc88->GetBEEP()->Connect(sound)) {
+            fprintf(stderr, "WARNING: Failed to connect BEEP to sound\n");
+        }
+    }
+
+    // 7. 設定適用
     printf("  - Applying configuration...\n");
     pc88->ApplyConfig(config->GetPC88Config());
     keyboard->ApplyConfig(config->GetPC88Config());
+    if (sound) {
+        sound->ApplyConfig(config->GetPC88Config());
+    }
 
     // 設定適用後にReset()を再度呼ぶ（DIPSWなどの設定を反映するため）
     pc88->Reset();
 
-    // 7. ディスクイメージのマウント（指定されている場合）
+    // 8. ディスクイメージのマウント（指定されている場合）
     if (disk_image != nullptr) {
         printf("  - Mounting disk image: %s\n", disk_image);
         // Mount(drive, diskname, readonly, index, create)
@@ -240,6 +271,11 @@ void WinCoreSDL2::Cleanup()
         printf("  - Deleting KeyboardSDL2...\n");
         delete keyboard;
         keyboard = nullptr;
+    }
+    if (sound) {
+        printf("  - Deleting SoundSDL2...\n");
+        delete sound;
+        sound = nullptr;
     }
     // TapeManagerを先に閉じる（PC88が削除される前にschedulerへの参照を無効化）
     if (tapemgr) {

@@ -14,6 +14,7 @@
 #include "DrawSDL2.h"
 #include "ConfigSDL2.h"
 #include "KeyboardSDL2.h"
+#include "SoundSDL2.h"
 
 // ---------------------------------------------------------------------------
 //  WinCoreSDL2 - エミュレーションコア
@@ -34,6 +35,7 @@ private:
     DiskManager* diskmgr;
     TapeManager* tapemgr;
     PC8801::KeyboardSDL2* keyboard;
+    PC8801::SoundSDL2* sound;
     bool running;
 
     void ProcessEvents();
