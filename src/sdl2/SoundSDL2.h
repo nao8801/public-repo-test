@@ -10,6 +10,7 @@
 #include <SDL2/SDL.h>
 #include "pc88/sound.h"
 #include "common/types.h"
+#include "SoundDumpPipe.h"
 
 class PC88;
 
@@ -27,6 +28,11 @@ public:
 
     void ApplyConfig(const Config* config);
 
+    // WAV録音機能
+    bool DumpBegin(const char* filename);
+    bool DumpEnd();
+    bool IsDumping() { return dumper.IsDumping(); }
+
 private:
     static void SDLCALL AudioCallback(void* userdata, Uint8* stream, int len);
 
@@ -34,6 +40,8 @@ private:
     uint current_rate;
     uint current_buflen;
     bool initialized;
+    
+    SoundDumpPipe dumper;  // WAV録音用パイプ
 };
 
 }

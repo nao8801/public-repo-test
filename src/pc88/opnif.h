@@ -54,6 +54,9 @@ public:
 	
 	void SetVolume(const Config* config);
 	void SetFMMixMode(bool);
+	// SDL2用: FM/PSG個別のボリューム制御（デバッグ用）
+	void SetVolumeFM(int db) { opn.SetVolumeFM(db); }
+	void SetVolumePSG(int db) { opn.SetVolumePSG(db); }
 	
 	uint IFCALL GetStatusSize();
 	bool IFCALL SaveStatus(uint8* status);

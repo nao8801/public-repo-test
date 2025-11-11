@@ -125,8 +125,10 @@ int Sound::Get(Sample* dest, int nsamples)
 		int32* src = mixingbuf;
 		for (int n = mixsamples; n>0; n--)
 		{
-			*dest++ = Limit(*src++, 32767, -32768);
-			*dest++ = Limit(*src++, 32767, -32768);
+			int32 l = *src++ >> 1;  // -6 dB attenuation
+			int32 r = *src++ >> 1;  // -6 dB attenuation
+			*dest++ = Limit(l, 32767, -32768);
+			*dest++ = Limit(r, 32767, -32768);
 		}
 	}
 	return mixsamples;
@@ -142,6 +144,12 @@ int Sound::Get(SampleL* dest, int nsamples)
 	CriticalSection::Lock lock(cs_ss);
 	for (SSNode* s = sslist; s; s = s->next)
 		s->ss->Mix(dest, nsamples);
+
+	// -6 dB attenuation after mixing to avoid clipping
+	int total = nsamples * 2;
+	for (int i = 0; i < total; i++) {
+		dest[i] >>= 1;
+	}
 	return nsamples;
 }
 

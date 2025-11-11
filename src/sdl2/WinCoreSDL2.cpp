@@ -8,6 +8,7 @@
 #include "WinCoreSDL2.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>
+#include <time.h>
 #include "pc88/memory.h"
 #include "pc88/opnif.h"
 #include "pc88/beep.h"
@@ -242,6 +243,48 @@ void WinCoreSDL2::ProcessEvents()
                     printf("PC88 reset complete\n");
                 }
             }
+            // F5 key toggles WAV recording
+            else if (event.key.keysym.sym == SDLK_F5) {
+                if (sound) {
+                    if (!sound->IsDumping()) {
+                        // 録音開始（ファイル名は日時ベース）
+                        char filename[64];
+                        time_t now = time(NULL);
+                        struct tm* t = localtime(&now);
+                        snprintf(filename, sizeof(filename), "record_%04d%02d%02d_%02d%02d%02d.wav",
+                                t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
+                                t->tm_hour, t->tm_min, t->tm_sec);
+                        if (sound->DumpBegin(filename)) {
+                            printf("Recording started: %s\n", filename);
+                        } else {
+                            printf("Failed to start recording\n");
+                        }
+                    } else {
+                        // 録音停止
+                        if (sound->DumpEnd()) {
+                            printf("Recording stopped\n");
+                        }
+                    }
+                }
+            }
+            // F6: FM (OPNA) のミュート切替
+            else if (event.key.keysym.sym == SDLK_F6) {
+                if (pc88 && pc88->GetOPN1()) {
+                    static bool fm_muted = false;
+                    fm_muted = !fm_muted;
+                    pc88->GetOPN1()->SetVolumeFM(fm_muted ? -100 : 0);
+                    printf("FM %s\n", fm_muted ? "MUTED" : "ON");
+                }
+            }
+            // F7: PSG(SSG) のミュート切替
+            else if (event.key.keysym.sym == SDLK_F7) {
+                if (pc88 && pc88->GetOPN1()) {
+                    static bool psg_muted = false;
+                    psg_muted = !psg_muted;
+                    pc88->GetOPN1()->SetVolumePSG(psg_muted ? -100 : 0);
+                    printf("PSG %s\n", psg_muted ? "MUTED" : "ON");
+                }
+            }
             else if (keyboard) {
                 // Forward all other key down events to keyboard emulation
                 // Use keycode (logical key) for RDP compatibility
@@ -273,6 +316,11 @@ void WinCoreSDL2::Cleanup()
         keyboard = nullptr;
     }
     if (sound) {
+        // 録音中なら停止
+        if (sound->IsDumping()) {
+            printf("  - Stopping WAV recording...\n");
+            sound->DumpEnd();
+        }
         printf("  - Deleting SoundSDL2...\n");
         delete sound;
         sound = nullptr;

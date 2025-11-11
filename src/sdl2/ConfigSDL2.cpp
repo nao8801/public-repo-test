@@ -46,8 +46,11 @@ void ConfigSDL2::LoadDefaults()
     // サウンド設定
     pc88config.soundbuffer = 100;    // 100ms
     pc88config.opnclock = 8;         // OPNクロック (8MHz)
-    pc88config.volfm = 80;           // FM音源音量 (0-128)
-    pc88config.volssg = 80;          // SSG音量
+    // Win32版のデフォルト値に合わせる
+    // Win32版: FM=0 (VOLUME_BIAS), SSG=97 (またはリセット時は-3)
+    // 音量範囲は -40 ～ +20 dB
+    pc88config.volfm = 0;            // FM音源音量 (Win32版デフォルト: 0)
+    pc88config.volssg = -3;          // SSG音量 (Win32版リセット時デフォルト: -3)
     pc88config.voladpcm = 80;        // ADPCM音量
     pc88config.volrhythm = 80;       // リズム音量
     pc88config.volbd = 80;           // バスドラム

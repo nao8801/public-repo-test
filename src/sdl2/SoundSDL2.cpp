@@ -35,8 +35,8 @@ SoundSDL2::~SoundSDL2()
 //
 void SDLCALL SoundSDL2::AudioCallback(void* userdata, Uint8* stream, int len)
 {
-    SoundSource* source = static_cast<SoundSource*>(userdata);
-    if (!source) {
+    SoundDumpPipe* dumper = static_cast<SoundDumpPipe*>(userdata);
+    if (!dumper) {
         // 音源がない場合は無音
         memset(stream, 0, len);
         return;
@@ -48,8 +48,8 @@ void SDLCALL SoundSDL2::AudioCallback(void* userdata, Uint8* stream, int len)
     // サンプル数を計算（ステレオなので / 2 / sizeof(Sample)）
     int samples = len / (2 * sizeof(Sample));
 
-    // 音源からデータを取得（これが全音源をミックスしてくれる）
-    int got = source->Get(buffer, samples);
+    // dumperからデータを取得（dumperが内部で元の音源から取得し、WAVファイルに書き込む）
+    int got = dumper->Get(buffer, samples);
 
     // 取得できなかった分は無音で埋める
     if (got < samples) {
@@ -88,6 +88,9 @@ bool SoundSDL2::Init(PC88* pc, uint rate, uint buflen)
         return false;
     }
 
+    // SoundDumpPipeに元の音源を設定
+    dumper.SetSource(GetSoundSource());
+
     // SDL2オーディオの初期化
     SDL_AudioSpec want, have;
     SDL_zero(want);
@@ -97,7 +100,7 @@ bool SoundSDL2::Init(PC88* pc, uint rate, uint buflen)
     want.channels = 2;                   // ステレオ
     want.samples = bufsize / 4;          // バッファサイズ（サンプル単位）
     want.callback = AudioCallback;       // コールバック関数
-    want.userdata = GetSoundSource();    // Sound::GetSoundSource()を渡す
+    want.userdata = &dumper;              // SoundDumpPipeを渡す（dumperが内部で元の音源から取得）
 
     printf("  - Opening SDL2 audio device...\n");
     audio_device = SDL_OpenAudioDevice(
@@ -159,4 +162,20 @@ void SoundSDL2::ApplyConfig(const Config* config)
     // SDL2版では動的なレート変更は複雑なので、
     // とりあえず基底クラスの設定更新のみ行う
     // 必要に応じて後で実装
+}
+
+// ---------------------------------------------------------------------------
+//  WAV録音開始
+//
+bool SoundSDL2::DumpBegin(const char* filename)
+{
+    return dumper.DumpStart(filename);
+}
+
+// ---------------------------------------------------------------------------
+//  WAV録音終了
+//
+bool SoundSDL2::DumpEnd()
+{
+    return dumper.DumpStop();
 }
