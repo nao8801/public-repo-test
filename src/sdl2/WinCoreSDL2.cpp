@@ -200,6 +200,13 @@ void WinCoreSDL2::Run()
         // clock=100 (4MHz), eclock=100 (実効クロック100%)
         pc88->Proceed(1667, 100, 100);
 
+        // 音源バッファを更新（オーディオバッファ枯渇を防ぐため、毎フレーム明示的に更新）
+        // これにより、I/Oアクセスが少ないシーン（画面切り替え時など）でも
+        // バッファに十分なデータが供給される
+        if (sound) {
+            sound->Update(nullptr);
+        }
+
         // 画面更新
         pc88->UpdateScreen(false);
 
