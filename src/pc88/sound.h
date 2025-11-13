@@ -35,6 +35,7 @@ public:
 	bool SetRate(uint rate, int bufsize);
 
 	void IOCALL UpdateCounter(uint);
+	void Reset();  // リセット時に内部状態をクリア
 	
 	bool IFCALL Connect(ISoundSource* src);
 	bool IFCALL Disconnect(ISoundSource* src);
@@ -77,6 +78,7 @@ private:
 	uint32 cfgflg;
 	int tdiff;
 	uint mixthreshold;
+	uint32 accumulated_time;  // 累積時間（無音時でもバッファを一定に保つため）
 
 	bool enabled;
 	

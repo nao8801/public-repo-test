@@ -38,15 +38,11 @@ WinCoreSDL2::~WinCoreSDL2()
 //
 bool WinCoreSDL2::Init(ConfigSDL2* config, const char* disk_image)
 {
-    printf("Initializing WinCoreSDL2...\n");
-
     // 1. DrawSDL2作成（Init()はPC88::Init()内で呼ばれる）
-    printf("  - Creating DrawSDL2...\n");
     draw = new DrawSDL2();
     // 注意: draw->Init()はPC88::Init()内で呼ばれるため、ここでは呼ばない
 
     // 2. DiskManager初期化
-    printf("  - Initializing DiskManager...\n");
     diskmgr = new DiskManager();
     if (!diskmgr->Init()) {
         fprintf(stderr, "DiskManager::Init failed\n");
@@ -55,11 +51,9 @@ bool WinCoreSDL2::Init(ConfigSDL2* config, const char* disk_image)
     }
 
     // 3. TapeManager作成（PC88::Init内で初期化される）
-    printf("  - Creating TapeManager...\n");
     tapemgr = new TapeManager();
 
     // 4. PC88初期化（この中でdraw->Init()が呼ばれる）
-    printf("  - Initializing PC88...\n");
     pc88 = new PC88();
     bool pc88_init_ok = pc88->Init(draw, diskmgr, tapemgr);
     if (!pc88_init_ok) {
@@ -81,7 +75,6 @@ bool WinCoreSDL2::Init(ConfigSDL2* config, const char* disk_image)
     // pc88->GetCPU1()->EnableDump(true);
 
     // 5. KeyboardSDL2初期化と接続
-    printf("  - Initializing KeyboardSDL2...\n");
     keyboard = new PC8801::KeyboardSDL2();
     if (!keyboard->Init()) {
         fprintf(stderr, "KeyboardSDL2::Init failed\n");
@@ -93,7 +86,6 @@ bool WinCoreSDL2::Init(ConfigSDL2* config, const char* disk_image)
     }
 
     // KeyboardをIOBusに接続
-    printf("  - Connecting keyboard to IOBus...\n");
     IOBus* bus = pc88->GetBus1();
     static const IOBus::Connector keyb_connector[] =
     {
@@ -128,7 +120,6 @@ bool WinCoreSDL2::Init(ConfigSDL2* config, const char* disk_image)
     }
 
     // 6. SoundSDL2初期化と接続
-    printf("  - Initializing SoundSDL2...\n");
     sound = new PC8801::SoundSDL2();
     if (!sound->Init(pc88, 44100, 100)) {
         fprintf(stderr, "SoundSDL2::Init failed\n");
@@ -140,7 +131,6 @@ bool WinCoreSDL2::Init(ConfigSDL2* config, const char* disk_image)
 
     // 音源をSoundに接続
     if (sound) {
-        printf("  - Connecting sound sources to SoundSDL2...\n");
         if (!pc88->GetOPN1()->Connect(sound)) {
             fprintf(stderr, "WARNING: Failed to connect OPN1 to sound\n");
         }
@@ -153,7 +143,6 @@ bool WinCoreSDL2::Init(ConfigSDL2* config, const char* disk_image)
     }
 
     // 7. 設定適用
-    printf("  - Applying configuration...\n");
     pc88->ApplyConfig(config->GetPC88Config());
     keyboard->ApplyConfig(config->GetPC88Config());
     if (sound) {
@@ -165,18 +154,15 @@ bool WinCoreSDL2::Init(ConfigSDL2* config, const char* disk_image)
 
     // 8. ディスクイメージのマウント（指定されている場合）
     if (disk_image != nullptr) {
-        printf("  - Mounting disk image: %s\n", disk_image);
         // Mount(drive, diskname, readonly, index, create)
         // drive=0 (ドライブA), readonly=false, index=0 (最初のディスク), create=false
         if (diskmgr->Mount(0, disk_image, false, 0, false)) {
-            printf("  - Disk mounted successfully on drive A:\n");
         } else {
             fprintf(stderr, "WARNING: Failed to mount disk image: %s\n", disk_image);
             fprintf(stderr, "  Emulator will continue without disk.\n");
         }
     }
 
-    printf("WinCoreSDL2: Initialization complete\n");
     running = true;
     return true;
 }
@@ -189,8 +175,6 @@ void WinCoreSDL2::Run()
     uint32_t last_time = SDL_GetTicks();
     const uint32_t frame_time = 1000 / 60;  // 60 FPS = 16.67ms
     uint32_t frame_count = 0;
-
-    printf("Entering main loop (60 FPS target)\n");
 
     while (running) {
         ProcessEvents();
@@ -232,22 +216,21 @@ void WinCoreSDL2::ProcessEvents()
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
         case SDL_QUIT:
-            printf("Received SDL_QUIT event\n");
             running = false;
             break;
 
         case SDL_KEYDOWN:
             // ESC key exits the emulator
             if (event.key.keysym.sym == SDLK_ESCAPE) {
-                printf("ESC key pressed\n");
                 running = false;
             }
             // TAB key resets the emulator (useful for disk recognition)
             else if (event.key.keysym.sym == SDLK_TAB) {
-                printf("TAB key pressed - Resetting PC88...\n");
                 if (pc88) {
                     pc88->Reset();
-                    printf("PC88 reset complete\n");
+                    if (sound) {
+                        sound->Reset();
+                    }
                 }
             }
             // F5 key toggles WAV recording
@@ -261,16 +244,10 @@ void WinCoreSDL2::ProcessEvents()
                         snprintf(filename, sizeof(filename), "record_%04d%02d%02d_%02d%02d%02d.wav",
                                 t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
                                 t->tm_hour, t->tm_min, t->tm_sec);
-                        if (sound->DumpBegin(filename)) {
-                            printf("Recording started: %s\n", filename);
-                        } else {
-                            printf("Failed to start recording\n");
-                        }
+                        sound->DumpBegin(filename);
                     } else {
                         // 録音停止
-                        if (sound->DumpEnd()) {
-                            printf("Recording stopped\n");
-                        }
+                        sound->DumpEnd();
                     }
                 }
             }
@@ -280,7 +257,6 @@ void WinCoreSDL2::ProcessEvents()
                     static bool fm_muted = false;
                     fm_muted = !fm_muted;
                     pc88->GetOPN1()->SetVolumeFM(fm_muted ? -100 : 0);
-                    printf("FM %s\n", fm_muted ? "MUTED" : "ON");
                 }
             }
             // F7: PSG(SSG) のミュート切替
@@ -289,7 +265,6 @@ void WinCoreSDL2::ProcessEvents()
                     static bool psg_muted = false;
                     psg_muted = !psg_muted;
                     pc88->GetOPN1()->SetVolumePSG(psg_muted ? -100 : 0);
-                    printf("PSG %s\n", psg_muted ? "MUTED" : "ON");
                 }
             }
             else if (keyboard) {
@@ -315,48 +290,36 @@ void WinCoreSDL2::ProcessEvents()
 //
 void WinCoreSDL2::Cleanup()
 {
-    printf("Cleaning up WinCoreSDL2...\n");
-
     if (keyboard) {
-        printf("  - Deleting KeyboardSDL2...\n");
         delete keyboard;
         keyboard = nullptr;
     }
     if (sound) {
         // 録音中なら停止
         if (sound->IsDumping()) {
-            printf("  - Stopping WAV recording...\n");
             sound->DumpEnd();
         }
-        printf("  - Deleting SoundSDL2...\n");
         delete sound;
         sound = nullptr;
     }
     // TapeManagerを先に閉じる（PC88が削除される前にschedulerへの参照を無効化）
     if (tapemgr) {
-        printf("  - Closing TapeManager...\n");
         tapemgr->Close();
     }
     if (pc88) {
-        printf("  - Deleting PC88...\n");
         delete pc88;
         pc88 = nullptr;
     }
     if (tapemgr) {
-        printf("  - Deleting TapeManager...\n");
         delete tapemgr;
         tapemgr = nullptr;
     }
     if (diskmgr) {
-        printf("  - Deleting DiskManager...\n");
         delete diskmgr;
         diskmgr = nullptr;
     }
     if (draw) {
-        printf("  - Deleting DrawSDL2...\n");
         delete draw;
         draw = nullptr;
     }
-
-    printf("WinCoreSDL2: Cleanup complete\n");
 }

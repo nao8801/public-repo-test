@@ -62,8 +62,6 @@ void SDLCALL SoundSDL2::AudioCallback(void* userdata, Uint8* stream, int len)
 //
 bool SoundSDL2::Init(PC88* pc, uint rate, uint buflen)
 {
-    printf("Initializing SoundSDL2...\n");
-
     current_rate = rate;
     current_buflen = buflen;
 
@@ -75,13 +73,9 @@ bool SoundSDL2::Init(PC88* pc, uint rate, uint buflen)
         buflen = 100;  // 100ms
     }
 
-    printf("  - Sample rate: %d Hz\n", rate);
-    printf("  - Buffer length: %d ms\n", buflen);
-
     // 基底クラス（Sound）の初期化
     // バッファサイズはサンプル単位で指定（rate * buflen / 1000）
     int bufsize = (rate * buflen / 1000) & ~15;  // 16の倍数に揃える
-    printf("  - Buffer size: %d samples\n", bufsize);
 
     if (!Sound::Init(pc, rate, bufsize)) {
         fprintf(stderr, "Sound::Init failed\n");
@@ -102,7 +96,6 @@ bool SoundSDL2::Init(PC88* pc, uint rate, uint buflen)
     want.callback = AudioCallback;       // コールバック関数
     want.userdata = &dumper;              // SoundDumpPipeを渡す（dumperが内部で元の音源から取得）
 
-    printf("  - Opening SDL2 audio device...\n");
     audio_device = SDL_OpenAudioDevice(
         NULL,  // デフォルトデバイス
         0,     // 再生用（0=playback, 1=capture）
@@ -117,13 +110,8 @@ bool SoundSDL2::Init(PC88* pc, uint rate, uint buflen)
         return false;
     }
 
-    printf("  - Audio device opened successfully\n");
-    printf("    - Format: %d Hz, %d channels, %d samples buffer\n",
-           have.freq, have.channels, have.samples);
-
     // オーディオ再生開始
     SDL_PauseAudioDevice(audio_device, 0);
-    printf("  - Audio playback started\n");
 
     initialized = true;
     return true;
@@ -135,10 +123,7 @@ bool SoundSDL2::Init(PC88* pc, uint rate, uint buflen)
 void SoundSDL2::Cleanup()
 {
     if (initialized) {
-        printf("Cleaning up SoundSDL2...\n");
-
         if (audio_device) {
-            printf("  - Stopping audio playback...\n");
             SDL_PauseAudioDevice(audio_device, 1);
             SDL_CloseAudioDevice(audio_device);
             audio_device = 0;

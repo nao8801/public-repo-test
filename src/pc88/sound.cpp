@@ -20,7 +20,7 @@ using namespace PC8801;
 //	生成・破棄
 //
 Sound::Sound()
-: Device(0), sslist(0), mixingbuf(0), enabled(false), cfgflg(0)
+: Device(0), sslist(0), mixingbuf(0), enabled(false), cfgflg(0), accumulated_time(0)
 {
 }
 
@@ -38,6 +38,7 @@ bool Sound::Init(PC88* pc88, uint rate, int bufsize)
 	prevtime = pc->GetCPUTick();
 	enabled = false;
 	mixthreshold = 16;
+	accumulated_time = 0;
 	
 	if (!SetRate(rate, bufsize))
 		return false;
@@ -230,8 +231,16 @@ bool Sound::Update(ISoundSource* /*src*/)
 	uint32 currenttime = pc->GetCPUTick();
 	
 	uint32 time = currenttime - prevtime;
-	if (enabled && time > mixthreshold)
+	if (!enabled)
+		return true;
+	
+	// 無音時でもバッファを一定に保つため、timeが小さくても累積的に処理する
+	// 1フレーム分（60 FPS = 1667 ticks）を最小単位として処理
+	const uint32 min_frame_ticks = 1667;  // 1フレーム = 16.67ms @ 4MHz
+	
+	if (time > mixthreshold)
 	{
+		// 通常処理：timeが大きい場合は即座に処理
 		prevtime = currenttime;
 		// nsamples = 経過時間(s) * サンプリングレート
 		// sample = ticks * rate / clock / 100000
@@ -243,8 +252,40 @@ bool Sound::Update(ISoundSource* /*src*/)
 		int samples = a / 2000;
 		tdiff = a % 2000;
 		
-		Log("Store = %5d samples\n", samples);
 		soundbuf.Fill(samples);
+	}
+	else if (time > 0)
+	{
+		// timeが小さい場合でも、累積的に処理
+		// 累積時間が1フレーム分を超えたら処理する
+		accumulated_time += time;
+		prevtime = currenttime;  // prevtimeは常に更新（次回のtime計算のため）
+		
+		if (accumulated_time >= min_frame_ticks)
+		{
+			// 累積時間分のサンプルを生成
+			int a = MulDiv(accumulated_time, rate50, pc->GetEffectiveSpeed()) + tdiff;
+			int samples = a / 2000;
+			tdiff = a % 2000;
+			
+			soundbuf.Fill(samples);
+			accumulated_time = 0;
+		}
+		else
+		{
+			// 累積時間がまだ足りない場合は待つ
+			// ただし、長時間待ちすぎないように、一定時間経過したら強制的に処理
+			if (accumulated_time > 0 && accumulated_time > 5000)
+			{
+				// 5ms以上経過した場合は強制的に処理（バッファ枯渇防止）
+				int a = MulDiv(accumulated_time, rate50, pc->GetEffectiveSpeed()) + tdiff;
+				int samples = a / 2000;
+				tdiff = a % 2000;
+				
+				soundbuf.Fill(samples);
+				accumulated_time = 0;
+			}
+		}
 	}
 	return true;
 }
@@ -258,13 +299,24 @@ int IFCALL Sound::GetSubsampleTime(ISoundSource* /*src*/)
 }
 
 // ---------------------------------------------------------------------------
+//	リセット時に内部状態をクリア
+//
+void Sound::Reset()
+{
+	if (pc) {
+		prevtime = pc->GetCPUTick();
+	}
+	tdiff = 0;
+	accumulated_time = 0;
+}
+
+// ---------------------------------------------------------------------------
 //	定期的に内部カウンタを更新
 //
 void IOCALL Sound::UpdateCounter(uint)
 {
 	if ((pc->GetCPUTick() - prevtime) > 40000)
 	{
-		Log("Update Counter\n");
 		Update(0);
 	}
 }
